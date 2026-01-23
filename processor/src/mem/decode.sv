@@ -35,6 +35,11 @@
  * Notes:
  * - Hit indicates whether a selection is valid or invalid. A hit
  *   of 0 means no device is selected or some error occurred.
+ * - When no hit is found, the selection signal is set to DNONE.
+ * - Decode logic activates when either:
+ *   - both are active, 
+ *   - rd is active
+ *   - wr is active
  */
 module decode (
     input wire rd, wr,
@@ -44,13 +49,14 @@ module decode (
     output logic [2:0] did
 );
     /* Internal wires for select signals
-    * - DRAM: Select signal for RAM (0000h range)
-    * - DROM: Select signal for ROM (1000h range)
-    * - DMAT: Select signal for matrix ALU (2000h range)
-    * - DINT: Select signal for integer ALU (3000h range)
-    * - DREG: Select signal for register file (4000h range)
-    * - DEXEC: Select signal for execution engine (5000h range)
-    * - DSPI: Select signal for SPI peripheral (6000h range)
+    * - DRAM: Select signal for RAM (0x0000-0x0FFF range)
+    * - DROM: Select signal for ROM (0x1000-0x1FFF range)
+    * - DMAT: Select signal for matrix ALU (0x2000-0x2FFF range)
+    * - DINT: Select signal for integer ALU (0x3000-0x3FFF range)
+    * - DREG: Select signal for register file (0x4000-0x4FFF range)
+    * - DEXEC: Select signal for execution engine (0x5000-0x5FFF range)
+    * - DSPI: Select signal for SPI peripheral (0x6000-0x6FFF range)
+    * - DNONE: Invalid select signal
     */
     localparam logic [2:0]
         DRAM  = 3'd0,
@@ -59,17 +65,18 @@ module decode (
         DINT  = 3'd3,
         DREG  = 3'd4,
         DEXEC = 3'd5,
-        DSPI  = 3'd6;
+        DSPI  = 3'd6,
+        DNONE = 3'd7;
 
     // Address decoding logic (combinational)
     always_comb begin
         // Initialize selection
         hit = 1'b0;
-        did = DRAM;
+        did = DNONE;
 
         // Decode when read or write is active
         if (rd || wr) begin
-            unique case (addr[15:12]) // Read bits first 3 MSBs
+            unique case (addr[15:12]) // Read bits first 4 MSBs
                 4'h0: begin
                     hit = 1'b1;
                     did = DRAM;
@@ -100,7 +107,7 @@ module decode (
                 end
                 default: begin
                     hit = 1'b0;
-                    did = DRAM;
+                    did = DNONE;
                 end
             endcase
         end

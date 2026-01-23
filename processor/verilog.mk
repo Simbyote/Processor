@@ -5,13 +5,13 @@ SIMULATOR = vvp
 
 # Overhead Directories
 CURR_DIR = $(shell pwd)
+BUILD_DIR = $(CURR_DIR)/build
 SRC_DIR = $(CURR_DIR)/src
 TEST_DIR = $(CURR_DIR)/tb
-OUT_DIR = $(CURR_DIR)/out
 
 ## Output Directories
-SIM_DIR = $(OUT_DIR)/out
-WAVE_DIR = $(OUT_DIR)/sim
+SIM_DIR = $(BUILD_DIR)/out
+WAVE_DIR = $(BUILD_DIR)/sim
 
 # Recursively gather all SystemVerilog files in src/
 SRC_FILES = $(shell find $(SRC_DIR) -type f -name "*.sv")
@@ -50,4 +50,4 @@ run: $(SIMULATIONS)
 
 # Clean up the output directory
 clean:
-	rm -rf $(OUT_DIR)
+	rm -rf $(BUILD_DIR)

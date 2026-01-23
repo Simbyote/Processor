@@ -1,9 +1,11 @@
 # Ignore directories labeled:
 
-# LaTeX output
+# Build outputs
 /output/
 **/output/
 output/
+out/
+**/out/
 out/
 
 # LaTeX asset libraries
