@@ -1,0 +1,121 @@
+%==============================================================================
+% General LaTeX Report Template
+%==============================================================================
+% Sixth tex file will cover the implementation of the:
+% Branching
+
+\documentclass[12pt]{article}
+
+%-------------------------- Packages -----------------------------------------
+\usepackage[utf8]{inputenc}       % UTF-8 encoding
+\usepackage[T1]{fontenc}          % 8-bit T1 fonts
+\usepackage{amsmath,amssymb}      % Math symbols
+\usepackage{graphicx}             % Include graphics
+\usepackage{float}                % Figure/table placement
+\usepackage{hyperref}             % Hyperlinks
+\usepackage{fancyhdr}             % Custom headers/footers
+\usepackage{natbib}               % Bibliography
+\usepackage{doi}                  % DOI links
+\usepackage{listings}             % Code listings
+\usepackage{xcolor}               % Colors
+\usepackage{tikz}                 % Diagrams
+\usepackage{pgfplots}             % Plots
+\usepackage{enumitem}             % Custom lists
+
+%----------------------- Document Metadata -----------------------------------
+\newcommand{\AuthorOne}{Mike Orduna}
+\newcommand{\Class}{Digital System Design Using HDL}
+\newcommand{\ReportTitle}{Processor Design Report: Branching Implementation}
+\newcommand{\School}{Texas State University}
+
+%----------------------- Header and Footer -----------------------------------
+\pagestyle{fancy}
+\fancyhf{}                            % clear all header/footer fields
+\fancyhead[L]{\textit{\Class}}
+\fancyhead[C]{\textbf{\ReportTitle}}
+\fancyhead[R]{\today}
+\fancyfoot[C]{\thepage}
+
+%----------------------- Listings Style --------------------------------------
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+%----------------------- Hyperref Options ------------------------------------
+\hypersetup{hidelinks}
+
+%--------------------------------- Document -----------------------------------
+\begin{document}
+
+% Title Page
+\begin{titlepage}
+  \centering
+  {\LARGE \Class}\\[1.5em]
+  {\Large \ReportTitle}\\[2em]
+  {\AuthorOne}\\[1.5em]
+  {\large \School}\\[3em]
+  {\today}
+\end{titlepage}
+
+% Table of Contents
+\tableofcontents
+\thispagestyle{empty}
+\newpage
+
+% Abstract
+\begin{abstract}
+  % Provide a brief summary of objectives, methods, and key results.
+\end{abstract}
+
+% Start page numbering
+\setcounter{page}{1}
+
+%==============================================================================
+% Sections
+%==============================================================================
+
+\section{Introduction}
+% Introduce the purpose, scope, and structure of the report.
+
+\section{Background}
+% Provide relevant theory or literature review.
+
+\section{Methodology}
+% Describe methods, materials, or experimental setups.
+
+\section{Implementation}
+% Outline implementation details, designs, or procedures.
+
+\section{Results}
+% Present results with figures and tables.
+
+\section{Discussion}
+% Interpret results, discuss implications and limitations.
+
+\section{Conclusion}
+% Summarize findings and suggest future work.
+
+% References
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}

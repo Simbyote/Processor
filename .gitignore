@@ -1,0 +1,67 @@
+# Ignore directories labeled:
+
+# LaTeX output
+/output/
+**/output/
+output/
+out/
+
+# LaTeX asset libraries
+/assets/
+**/assets/
+assets/
+
+# LaTeX figure libraries
+/figures/
+**/figures/
+figures/
+/figs/
+**/figs/
+figs/
+
+
+# Latex Data Libraries
+/data/
+**/data/
+data/
+
+# Environments
+/.venv/
+**/.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Custom scripts
+/scripts/
+**/scripts/
+scripts/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Build/exports
+/build/
+**/build/
+build/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Temporary files
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.pdf
