@@ -11,15 +11,6 @@ out/
 **/assets/
 assets/
 
-# LaTeX figure libraries
-/figures/
-**/figures/
-figures/
-/figs/
-**/figs/
-figs/
-
-
 # Latex Data Libraries
 /data/
 **/data/
