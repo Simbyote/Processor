@@ -170,6 +170,7 @@ correctness of the system.
 ---
 
 # Repository Layout
+```
 Processor
 ├── Makefile
 └── processor
@@ -198,6 +199,7 @@ Processor
     │   └── top.sv
     └── tb
         └── tb.sv
+```
 
 - The project is split into its parts:
     - `processor` contains the main modules of the project.
