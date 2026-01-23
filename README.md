@@ -1,5 +1,14 @@
 # Simplistic Processing Engine
 ## Table of Contents
+- [Overview](#overview)
+- [Project Details](#project-details)
+- [How It Operates](#how-it-operates)
+- [CPU Operation](#cpu-operation)
+- [Testing](#testing)
+- [Repository Layout](#repository-layout)
+- [Build & Run](#build--run)
+- [License](#license)
+
 
 ---
 # Overview
@@ -8,7 +17,7 @@ The SPE will be a processor that contains a:
 - Integer ALU
 - SPI Master Module
 - Instruction Fetch
-- Execution,
+- Execution
 - Memory FSM 
 
 ### Matrix Unit
@@ -33,7 +42,7 @@ used.
 - The processor **must** be able to execute Branches.
 - The processor **must** communicate with the SPI Master Module.
 
-- Matrices will be 4x4 16 bit deep.
+- Matrices will be 4x4 with 16 bit elements.
 
 - Matrix multiplication will multiply two 4x4 matrices and return an
 appropriate size matrix.
@@ -44,6 +53,24 @@ appropriate size matrix.
 
 - Transpose will flip a matrix along its diagonal.
 
+### Constraints
+- The system data path width is fixed at 256 bits.
+- Matrix operands are fixed at 4×4 dimensions with 16-bit elements.
+- The address bus width is fixed at 16 bits.
+- Module selection is performed using address bits [15:12].
+- The lower 7 address bits are not present on the external address bus.
+- Main memory, instruction memory, and peripherals are memory-mapped.
+- Matrix and integer ALUs are accessed via memory-mapped I/O.
+- Overflow handling for arithmetic operations is optional and not required.
+
+### Definitions
+- **Word:** A single addressable unit of main memory consisting of 256 bits.
+- **Reg/Mem:** An instruction operand that may reference either an internal register or a main memory location; binary encoding is implementation-defined.
+- **Offset (Branch):** A program counter–relative displacement used to modify control flow; size and sign interpretation are implementation-defined.
+- **Offset (SPI):** An offset value used to select a register or data location within the SPI module.
+- **STOP Instruction:** An instruction that terminates program execution by halting instruction fetch and execution.
+- **Execution Engine:** The control unit responsible for instruction sequencing, data movement, and coordination between memory and functional units.
+
 ## Architecture
 ![System Architecture](processor/docs/figs/arch.png "System Architecture")
 
@@ -51,8 +78,8 @@ The system is architected to be 256 bits.
 
 
 ## Memory Organization
-- Memory is to be 256 bits wide and 256 bit aligned. Note that the lower
-7 bits are *not* on the address bus.
+- Memory is to be 256 bits wide. Note that the lower 7 bits are 
+*not* on the address bus.
 
 - Instruction memory is only limited to user utilization.
 
@@ -153,9 +180,10 @@ and 1
 
 10. Multiply the integer value in memory location 0 to memory location 1.
 Store it in memory location 0x0A.
-11. Subtract the integer value in memory location 1 from memory location 0x0A. Store it in a register.
-12. Divide the result from step 8 by the result from step 9 and store
-the result in location 0x0B.
+11. Subtract the integer value in memory location 1 from memory location 0x0A. 
+Store it in a register. 
+12. Divide the result from step 8 by the result from step 
+9 and store the result in location 0x0B.
 
 - SPI Operations:
 13. Copy the first 8 locations in the main memory to the SPI module. Will
@@ -163,12 +191,12 @@ be done in a series of instructions.
 
 ---
 # Testing
-A top module and testbench will be created to grade the modules 
-developed. The top module will have the same interface as the IO. The order in which operations are executed will be changing to verify the
+A top module and testbench will be created to verify the modules 
+developed. The top module will have the same interface as the IO. 
+The order in which operations are executed will be changing to verify the
 correctness of the system.
 
 ---
-
 # Repository Layout
 ```
 Processor
@@ -194,29 +222,71 @@ Processor
     │   │   └── io.sv
     │   ├── mem
     │   │   ├── decode.sv
-    │   │   ├──instr.sv
+    │   │   ├── instr.sv
     │   │   └── mem.sv
     │   └── top.sv
     └── tb
         └── tb.sv
 ```
 
+## About the Layout
 - The project is split into its parts:
     - `processor` contains the main modules of the project.
     - `tb` contains the testbench for the project.
-- Each section of language of code—Verilog or LaTeX—contains their own Makefile
+- Each section of language of code—System Verilog or LaTeX—contains their own Makefile
 that drive the build process. The tex files are commanded by the `latex.mk` file
-and the verilog files are commanded by the `verilog.mk` file. Two commands can
+and the System Verilog files are commanded by the `verilog.mk` file. Two commands can
 proceed the main build process:
     - `DIR` is the path to the current directory of the Makefile. This is used in
     conjunction with the `latex.mk` file to build the documentation per directory.
-    - `DATA` is the path to the data files for any generated Verilog simulations—in
-    conjunction with the `verilog.mk` file. These are processed using gtkwave.
+    - `DATA` is the path to the data file (the simulation output), without an extension, 
+    that is used in conjunction with the `verilog.mk` file to analyze the System Verilog 
+    files via GTKwave.
 
+---
 # Build & Run
-- The Makefile can be used to build and compile any section of the project; either
-the processor or the documentation.
+## Build Requirements
+### Makefile
+- `make` for Makefile automation.
 
+### LaTeX
+- `texlive` for LaTeX compilation.
+- `pdflatex` for LaTeX compilation (Generating the PDF).
+- `bibtex` for BibTeX integration (Listing any references).
+
+### System Verilog
+- `iverilog` for System Verilog compilation.
+
+### Simulation Viewing
+- `GTKwave` for simulation viewing.
+
+## About the Makefiles
+- There is a Master Makefile that is used to build and compile the two sections of the 
+project—either the processor or the documentation—using the appropriate sub-makefiles.
+- For building documentation files, the `DIR` variable must be set to the
+path to the desired directory.
+- For building System Verilog files, there is no sub-command needed until the simulation
+phase is reached.
+- For running the simulation, the `DATA` variable must be set to the path to the
+data file for the simulation.
+
+## Master Makefile Commands
+- The following commands are available for the master Makefile and are done from the root directory of the project where the Makefile resides
+
+| Command              | Description                                                    |
+|----------------------|----------------------------------------------------------------|
+| `make help`          | Display available targets for both tex and sv files.           |
+| `make latex`         | Build the documentation files. Note that `DIR` must be set.    |
+| `make latex.open`    | Open the documentation files. Note that `DIR` must be set.     |
+| `make latex.clean`   | Clean the documentation files. Note that `DIR` must be set.    |
+| `make verilog`       | Build the System Verilog files.                                |
+| `make verilog.clean` | Clean the System Verilog files.                                |
+| `make verilog.sim`   | Run the System Verilog files. Note that `DATA` must be set.    |
+
+- If anything is unclear, use the `help` command for the master Makefile and refer to the 
+table above.
+
+---
 # License
 Free access to this code is granted under the MIT license to any person
 with a copy of this software and associated documentation files.
