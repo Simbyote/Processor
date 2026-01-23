@@ -45,7 +45,7 @@ appropriate size matrix.
 - Transpose will flip a matrix along its diagonal.
 
 ## Architecture
-![System Architecture](docs/figs/arch.png "System Architecture")
+![System Architecture](processor/docs/figs/arch.png "System Architecture")
 
 The system is architected to be 256 bits.
 
