@@ -40,7 +40,7 @@ module decode_tb;
         rd = (_rd);                                     \
         wr = (_wr);                                     \
         addr = (_addr);                                 \
-        #1                                              \
+        #1;                                             \
         if (hit !== (_hit)) begin                       \
             $fatal(1,                                   \
                 {"FATAL: hit mismatch:\n",              \
@@ -53,14 +53,15 @@ module decode_tb;
             $fatal(1,                                   \
                 {"FATAL: did mismatch:\n",              \
                 " rd=%0b, wr=%0b, addr=0x%0h\n",        \
-                " Expected: did=%0b\n" ,                \
-                " Got: did=%0b\n"},                     \
+                " Expected: did=%0d\n" ,                \
+                " Got: did=%0d\n"},                     \
                 rd, wr, addr, _did, did);               \
         end                                             \
         $display({                                      \
             "PASS: rd=%0b wr=%0b addr=0x%0h\n",         \
             " hit=%0b did=%0d\n"},                      \
          rd, wr, addr, hit, did);                       \
+         #1;                                            \
     end
 
     initial begin
@@ -72,8 +73,8 @@ module decode_tb;
 
         // Test for (no read or write) & (both read and write)
         $display("Test for (no read or write) & (both read and write)");
-        `GENERIC_DECODE(1'b0, 1'b0, 16'h0000, 1'b0, 3'd0);
-        `GENERIC_DECODE(1'b1, 1'b1, 16'h0000, 1'b1, 3'd0);
+        `GENERIC_DECODE(1'b0, 1'b0, 16'h0000, 1'b0, 4'd7);
+        `GENERIC_DECODE(1'b1, 1'b1, 16'h0000, 1'b1, 4'd0);
 
         // Test various address ranges
         $display("Test various address ranges");
@@ -110,8 +111,8 @@ module decode_tb;
         // Test edge bounds
         $display("Test edge bounds");
         `GENERIC_DECODE(1'b1, 1'b0, 16'h0FFF, 1'b1, 3'd0);
-        `GENERIC_DECODE(1'b1, 1'b0, 16'h7FFF, 1'b0, 3'd7);
-        `GENERIC_DECODE(1'b1, 1'b0, 16'h6FFF, 1'b1, 3'd6);
+        `GENERIC_DECODE(1'b0, 1'b1, 16'h7FFF, 1'b0, 3'd7);
+        `GENERIC_DECODE(1'b1, 1'b1, 16'h6FFF, 1'b1, 3'd6);
         $finish;
     end
 endmodule

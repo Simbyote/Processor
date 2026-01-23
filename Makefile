@@ -32,4 +32,4 @@ verilog.clean:
 
 # Simulation
 verilog.sim:
-	gtkwave processor/out/sim/$(DATA).vcd
+	gtkwave processor/build/sim/$(DATA).vcd
