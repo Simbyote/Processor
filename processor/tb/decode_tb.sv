@@ -25,6 +25,10 @@ module decode_tb;
     wire hit;
     wire [2:0] did;
 
+    // Local parameters
+    localparam logic [15:0] REGION_SIZE = 16'h1000;
+    localparam logic [3:0] MAX_REGION = 4'd6;
+
     // Instantiate the decode module
     decode decode_test (
         .rd(rd),
@@ -33,6 +37,10 @@ module decode_tb;
         .hit(hit),
         .did(did)
     );
+
+    function automatic logic [15:0] base_addr(input logic [3:0] region);
+        return region * REGION_SIZE;
+    endfunction
 
     // Tests whether the decode module correctly identifies memory-mapped components
     `define GENERIC_DECODE(_rd, _wr, _addr, _hit, _did) \
@@ -73,46 +81,47 @@ module decode_tb;
 
         // Test for (no read or write) & (both read and write)
         $display("Test for (no read or write) & (both read and write)");
-        `GENERIC_DECODE(1'b0, 1'b0, 16'h0000, 1'b0, 4'd7);
-        `GENERIC_DECODE(1'b1, 1'b1, 16'h0000, 1'b1, 4'd0);
+        `GENERIC_DECODE(1'b0, 1'b0, base_addr(4'd0), 1'b0, 3'd7);
+        `GENERIC_DECODE(1'b1, 1'b1, base_addr(4'd0), 1'b1, 3'd0);
 
         // Test various address ranges
         $display("Test various address ranges");
-        `GENERIC_DECODE(1'b1, 1'b0, 16'h0000, 1'b1, 3'd0); // DRAM read
-        `GENERIC_DECODE(1'b0, 1'b1, 16'h0000, 1'b1, 3'd0); // DRAM write
+        `GENERIC_DECODE(1'b1, 1'b0, base_addr(4'd0), 1'b1, 3'd0); // DRAM read
+        `GENERIC_DECODE(1'b0, 1'b1, base_addr(4'd0), 1'b1, 3'd0); // DRAM write
 
-        `GENERIC_DECODE(1'b1, 1'b0, 16'h1000, 1'b1, 3'd1); // DROM read
-        `GENERIC_DECODE(1'b0, 1'b1, 16'h1000, 1'b1, 3'd1); // DROM write
+        `GENERIC_DECODE(1'b1, 1'b0, base_addr(4'd1), 1'b1, 3'd1); // DROM read
+        `GENERIC_DECODE(1'b0, 1'b1, base_addr(4'd1), 1'b1, 3'd1); // DROM write
 
-        `GENERIC_DECODE(1'b1, 1'b0, 16'h2000, 1'b1, 3'd2); // DMAT read
-        `GENERIC_DECODE(1'b0, 1'b1, 16'h2000, 1'b1, 3'd2); // DMAT write
+        `GENERIC_DECODE(1'b1, 1'b0, base_addr(4'd2), 1'b1, 3'd2); // DMAT read
+        `GENERIC_DECODE(1'b0, 1'b1, base_addr(4'd2), 1'b1, 3'd2); // DMAT write
 
-        `GENERIC_DECODE(1'b1, 1'b0, 16'h3000, 1'b1, 3'd3); // DINT read
-        `GENERIC_DECODE(1'b0, 1'b1, 16'h3000, 1'b1, 3'd3); // DINT write
+        `GENERIC_DECODE(1'b1, 1'b0, base_addr(4'd3), 1'b1, 3'd3); // DINT read
+        `GENERIC_DECODE(1'b0, 1'b1, base_addr(4'd3), 1'b1, 3'd3); // DINT write
 
-        `GENERIC_DECODE(1'b1, 1'b0, 16'h4000, 1'b1, 3'd4); // DREG read
-        `GENERIC_DECODE(1'b0, 1'b1, 16'h4000, 1'b1, 3'd4); // DREG write
+        `GENERIC_DECODE(1'b1, 1'b0, base_addr(4'd4), 1'b1, 3'd4); // DREG read
+        `GENERIC_DECODE(1'b0, 1'b1, base_addr(4'd4), 1'b1, 3'd4); // DREG write
 
-        `GENERIC_DECODE(1'b1, 1'b0, 16'h5000, 1'b1, 3'd5); // DEXEC read
-        `GENERIC_DECODE(1'b0, 1'b1, 16'h5000, 1'b1, 3'd5); // DEXEC write
+        `GENERIC_DECODE(1'b1, 1'b0, base_addr(4'd5), 1'b1, 3'd5); // DEXEC read
+        `GENERIC_DECODE(1'b0, 1'b1, base_addr(4'd5), 1'b1, 3'd5); // DEXEC write
 
-        `GENERIC_DECODE(1'b1, 1'b0, 16'h6000, 1'b1, 3'd6); // DSPI read
-        `GENERIC_DECODE(1'b0, 1'b1, 16'h6000, 1'b1, 3'd6); // DSPI write
+        `GENERIC_DECODE(1'b1, 1'b0, base_addr(4'd6), 1'b1, 3'd6); // DSPI read
+        `GENERIC_DECODE(1'b0, 1'b1, base_addr(4'd6), 1'b1, 3'd6); // DSPI write
 
         // Test for invalid address
         $display("Test for invalid address");
-        `GENERIC_DECODE(1'b0, 1'b1, 16'h7000, 1'b0, 3'd7); // Invalid write
+        `GENERIC_DECODE(1'b0, 1'b1, base_addr(MAX_REGION + 1'b1), 1'b0, 3'd7); // Invalid write
 
         // Test address specificity
         $display("Test address specificity");
-        `GENERIC_DECODE(1'b1, 1'b0, 16'h1ABC, 1'b1, 3'd1);
-        `GENERIC_DECODE(1'b1, 1'b0, 16'h6FFF, 1'b1, 3'd6);
+        `GENERIC_DECODE(1'b1, 1'b0, base_addr(4'd1) + 16'h0ABC, 1'b1, 3'd1);
+        `GENERIC_DECODE(1'b1, 1'b0, base_addr(4'd6) + (REGION_SIZE - 16'h0001), 1'b1, 3'd6);
+
 
         // Test edge bounds
         $display("Test edge bounds");
-        `GENERIC_DECODE(1'b1, 1'b0, 16'h0FFF, 1'b1, 3'd0);
-        `GENERIC_DECODE(1'b0, 1'b1, 16'h7FFF, 1'b0, 3'd7);
-        `GENERIC_DECODE(1'b1, 1'b1, 16'h6FFF, 1'b1, 3'd6);
+        `GENERIC_DECODE(1'b1, 1'b0, base_addr(4'd0) + (REGION_SIZE - 16'h0001), 1'b1, 3'd0);
+        `GENERIC_DECODE(1'b0, 1'b1, base_addr(4'd7) + (REGION_SIZE - 16'h0001), 1'b0, 3'd7);
+        `GENERIC_DECODE(1'b1, 1'b1, base_addr(4'd6) + (REGION_SIZE - 16'h0001), 1'b1, 3'd6);
         $finish;
     end
 endmodule

@@ -48,25 +48,21 @@ module decode (
     output logic hit,
     output logic [2:0] did
 );
-    /* Internal wires for select signals
-    * - DRAM: Select signal for RAM (0x0000-0x0FFF range)
-    * - DROM: Select signal for ROM (0x1000-0x1FFF range)
-    * - DMAT: Select signal for matrix ALU (0x2000-0x2FFF range)
-    * - DINT: Select signal for integer ALU (0x3000-0x3FFF range)
-    * - DREG: Select signal for register file (0x4000-0x4FFF range)
-    * - DEXEC: Select signal for execution engine (0x5000-0x5FFF range)
-    * - DSPI: Select signal for SPI peripheral (0x6000-0x6FFF range)
-    * - DNONE: Invalid select signal
-    */
-    localparam logic [2:0]
-        DRAM  = 3'd0,
-        DROM  = 3'd1,
-        DMAT  = 3'd2,
-        DINT  = 3'd3,
-        DREG  = 3'd4,
-        DEXEC = 3'd5,
-        DSPI  = 3'd6,
-        DNONE = 3'd7;
+    /* Local parameters
+     * - ADDR_MSB: Most significant address bit
+     * - ADDR_LSB: Least significant address bit
+     * - REGION_SIZE: Size of each memory region
+     * - MAX_REGION: Number of valid memory regions
+	 * - DNONE: Invalid select signal
+     */
+    localparam int unsigned ADDR_MSB = 15;
+    localparam int unsigned ADDR_LSB = 12;
+    localparam logic [15:0] REGION_SIZE = 16'h1000;
+    localparam logic [3:0] MAX_REGION = 4'd6;
+	localparam logic [2:0] DNONE = 3'd7; 
+
+    logic [3:0] region;
+    assign region = addr[ADDR_MSB:ADDR_LSB];
 
     // Address decoding logic (combinational)
     always_comb begin
@@ -76,40 +72,10 @@ module decode (
 
         // Decode when read or write is active
         if (rd || wr) begin
-            unique case (addr[15:12]) // Read bits first 4 MSBs
-                4'h0: begin
-                    hit = 1'b1;
-                    did = DRAM;
-                end
-                4'h1: begin
-                    hit = 1'b1;
-                    did = DROM;
-                end
-                4'h2: begin
-                    hit = 1'b1;
-                    did = DMAT;
-                end
-                4'h3: begin
-                    hit = 1'b1;
-                    did = DINT;
-                end
-                4'h4: begin
-                    hit = 1'b1;
-                    did = DREG;
-                end
-                4'h5: begin
-                    hit = 1'b1;
-                    did = DEXEC;
-                end
-                4'h6: begin
-                    hit = 1'b1;
-                    did = DSPI;
-                end
-                default: begin
-                    hit = 1'b0;
-                    did = DNONE;
-                end
-            endcase
+            if (region <= MAX_REGION) begin
+                hit = 1'b1;
+				did = region[2:0];
+            end
         end
     end
 endmodule
