@@ -38,10 +38,10 @@ subsystem selection.
 ### Parameters / Constants
 | Name        |  Value | Meaning              |
 |-------------|-------:|----------------------|
-| ADDR_MSB    |   15   | Upper Decode field   |
-| ADDR_LSB    |   12   | Lower Decode field   |
+| ADDR_MSB    | 15     | Upper Decode field   |
+| ADDR_LSB    | 12     | Lower Decode field   |
 | REGION_SIZE | 0x1000 | Fixed region window  |
-| MAX_REGION  |   6    | Highest valid region |
+| MAX_REGION  | 6      | Highest valid region |
 
 ## Behavioral Contract
 ### Reset
@@ -49,7 +49,7 @@ subsystem selection.
 - Outputs are purely combinational.
 - After system reset, outputs depend only on input values.
 
-### Update rule (clocked)
+### Update rule
 - If `(rd || wr) && addr[15:12] <= 4'h6)`:
     - `hit = 1`
     - `did = decode(addr[15:12])`
@@ -67,7 +67,7 @@ subsystem selection.
 protocol violation.
 - Downstream logic must ignore `did` when `hit = 0`.
 
-## Addressing / Mapping (if applicable)
+## Addressing / Mapping
 - Base / range: `0x0000 - 0x6FFF`
 - Indexing: `region = addr[15:12]`
 - Stride: fixed 0x1000 windows
@@ -78,7 +78,7 @@ protocol violation.
 ## State
 | Register | Width | Reset | Updates when | Description       |
 | -------- | ----: | ----: | ------------ | ----------------- |
-| —        |     — |     — | —            | No internal state |
+| —        | —     | —     | —            | No internal state |
 
 
 ## Verification

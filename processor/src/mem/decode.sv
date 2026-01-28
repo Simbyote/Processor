@@ -72,7 +72,8 @@ module decode (
 
         // Decode when read or write is active
         if (rd || wr) begin
-            if (region <= MAX_REGION) begin
+            if (region <= MAX_REGION) begin // If the region is valid
+                // Assign proper hit and did
                 hit = 1'b1;
 				did = region[2:0];
             end
