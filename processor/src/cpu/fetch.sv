@@ -70,7 +70,6 @@ module fetch (
     output logic [INSTR_W-1:0] instr,
     output logic valid
 );
-    // Load instruction from instruction memory
     assign addr = pc_curr;
 
     // Only issue a read when not held
@@ -101,7 +100,5 @@ module fetch (
             end
         end
     end
-
 endmodule
-
 `default_nettype wire

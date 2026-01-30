@@ -13,9 +13,9 @@
  * - decode_tb: Testbench for the decode module
  *
  * Notes:
- * - Uses the `define macro for generic test cases
- * - Features debug outputs using `$fatal` (for fatal errors; ends test upon failure) 
- *   and `$display` (for generic output verification)
+ * - Uses the define macro for a generic test case
+ * - Features debug outputs using `$fatal` (for fatal errors; ends test upon failure)
+ * - A for loop is used to drive multiple inputs across the generic test
  */
 
 module decode_tb (

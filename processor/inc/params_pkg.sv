@@ -1,5 +1,4 @@
 // inc/params_pkg.sv
-`default_nettype none
 package params_pkg;
     // Global widths
     parameter int ADDR_W  = 16;
@@ -20,4 +19,3 @@ package params_pkg;
 
     // Memory Map?
 endpackage
-`default_nettype wire
