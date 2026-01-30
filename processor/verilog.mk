@@ -1,53 +1,48 @@
-# System Variables
-IVERILOG = iverilog
-SIMULATOR = vvp
 .DEFAULT_GOAL := help
 
-# Overhead Directories
-CURR_DIR = $(shell pwd)
+# System variables
+IVERILOG  = iverilog
+SIMULATOR = vvp
+
+# Directory variables
+CURR_DIR  = $(shell pwd)
+SRC_DIR   = $(CURR_DIR)/src
+TB_DIR    = $(CURR_DIR)/tb
+
+# Subdirectory variables
 BUILD_DIR = $(CURR_DIR)/build
-SRC_DIR = $(CURR_DIR)/src
-TEST_DIR = $(CURR_DIR)/tb
+SIM_DIR   = $(BUILD_DIR)/out
+WAVE_DIR  = $(BUILD_DIR)/sim
 
-## Output Directories
-SIM_DIR = $(BUILD_DIR)/out
-WAVE_DIR = $(BUILD_DIR)/sim
+# Top file variables
+TOP_FILE   = $(CURR_DIR)/top.sv
+TOP_MODULE = top
+TOP_OUT    = $(SIM_DIR)/top.out
 
-# Recursively gather all SystemVerilog files in src/
+# Source file variables
 SRC_FILES = $(shell find $(SRC_DIR) -type f -name "*.sv")
-TB_FILES = $(shell find $(TEST_DIR) -type f -name "*.sv")
+TB_FILES  = $(shell find $(TB_DIR)  -type f -name "*.sv")
 
-# Simulation targets
-SIMULATIONS = $(patsubst $(TEST_DIR)/%.sv, $(SIM_DIR)/%.out, $(TB_FILES))
+.PHONY: all help build run clean
+help:
+	@echo "Available targets:"
+	@echo "  all    - Build and run the simulation"
+	@echo "  build  - Compile the System Verilog source and testbench files"
+	@echo "  run    - Execute the simulation"
+	@echo "  clean  - Remove build artifacts"
 
-# Rules for each target
-.PHONY: help all run clean
+all: build $(TOP_OUT) run
 
-# Default Rule
-help:	# Display available targets
-	@echo "Targets:"
-	@echo "  all      - Build all simulation targets"
-	@echo "  build    - Create output directories"
-	@echo "  run      - Run all simulations and generate VCD files"
-	@echo "  clean    - Remove all output files"
-
-all: build $(SIMULATIONS) run
-
-# Build Rule
 build:
-	mkdir -p $(WAVE_DIR) $(SIM_DIR)
+	mkdir -p $(SIM_DIR) $(WAVE_DIR)
 
-# Build the simulation targets
-$(SIM_DIR)/%.out: $(TEST_DIR)/%.sv $(SRC_FILES)
-	$(IVERILOG) -g2012 -o $@ $(SRC_FILES) $<
+$(TOP_OUT): $(TOP_FILE) $(SRC_FILES) $(TB_FILES)
+	$(IVERILOG) -g2012 -Wall -s $(TOP_MODULE) -o $@ \
+		$(SRC_FILES) $(TB_FILES) $(TOP_FILE)
 
-# Run all the simulations
-run: $(SIMULATIONS)
-	for sim in $^; do \
-		$(SIMULATOR) $$sim; \
-	done
+run: $(TOP_OUT)
+	$(SIMULATOR) $<
 	mv *.vcd $(WAVE_DIR)
 
-# Clean up the output directory
 clean:
 	rm -rf $(BUILD_DIR)

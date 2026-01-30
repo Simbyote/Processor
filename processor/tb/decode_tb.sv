@@ -1,6 +1,5 @@
-`timescale 1ns/1ps
 `default_nettype none
-
+`timescale 1ns/1ps
 /* decode_tb.sv
  * Purpose:
  *  Testbench for the decode module. Drives the decode module with
@@ -18,110 +17,131 @@
  * - Features debug outputs using `$fatal` (for fatal errors; ends test upon failure) 
  *   and `$display` (for generic output verification)
  */
-module decode_tb;
-    // Signals
-    logic rd, wr;
-    logic [15:0] addr;
-    wire hit;
-    wire [2:0] did;
 
-    // Local parameters
-    localparam logic [15:0] REGION_SIZE = 16'h1000;
-    localparam logic [3:0] MAX_REGION = 4'd6;
+module decode_tb (
+    input wire hit,
+    input wire [2:0] did,
 
-    // Instantiate the decode module
-    decode decode_test (
-        .rd(rd),
-        .wr(wr),
-        .addr(addr),
-        .hit(hit),
-        .did(did)
-    );
+    output logic rd, wr,
+    output logic [15:0] addr
+);
+    localparam BIT_STATE = 2**12;
 
-    function automatic logic [15:0] base_addr(input logic [3:0] region);
-        return region * REGION_SIZE;
-    endfunction
+    // Local wires
+    logic [3:0] region;
+    logic [11:0] offset;
+
+    logic pin;
+    logic [2:0] select;
 
     // Tests whether the decode module correctly identifies memory-mapped components
     `define GENERIC_DECODE(_rd, _wr, _addr, _hit, _did) \
     begin                                               \
-        rd = (_rd);                                     \
-        wr = (_wr);                                     \
-        addr = (_addr);                                 \
+        rd = _rd;                                       \
+        wr = _wr;                                       \
+        addr = _addr;                                   \
         #1;                                             \
         if (hit !== (_hit)) begin                       \
             $fatal(1,                                   \
                 {"FATAL: hit mismatch:\n",              \
                 " rd=%0b, wr=%0b, addr=0x%0h\n",        \
-                " Expected: hit=%0b\n",                 \
-                " Got: hit=%0b\n"},                     \
+                " Got: hit=%0b\n",                      \
+                " Expected: hit=%0b\n"},                \
                 rd, wr, addr, _hit, hit);               \
         end                                             \
         if (did !== (_did)) begin                       \
             $fatal(1,                                   \
                 {"FATAL: did mismatch:\n",              \
                 " rd=%0b, wr=%0b, addr=0x%0h\n",        \
-                " Expected: did=%0d\n" ,                \
-                " Got: did=%0d\n"},                     \
+                " Got: did=%0d\n" ,                     \
+                " Expected: did=%0d\n"},                \
                 rd, wr, addr, _did, did);               \
         end                                             \
-        $display({                                      \
-            "PASS: rd=%0b wr=%0b addr=0x%0h\n",         \
-            " hit=%0b did=%0d\n"},                      \
-         rd, wr, addr, hit, did);                       \
-         #1;                                            \
+        #1;                                             \
     end
 
+    /* For testing, each case must be handled such like:
+     * - `rd = 0` and `wr = 0`: Idle state `hit = 0` and `did = DNONE`
+     * - `rd = 1` and `wr = 0`: Read state `hit = 1` and `did` is appropriate memory-mapped component
+     * - `rd = 0` and `wr = 1`: Write state `hit = 1` and `did` is appropriate memory-mapped component
+     * - `rd = 1` and `wr = 1`: Concurrent state `hit = 1` and `did` is appropriate memory-mapped component
+     */
     initial begin
-        $dumpfile( "decode.vcd" );
-        $dumpvars( 0, decode_tb );
-
         // Initialize signals
-        rd = 1'b0; wr = 1'b0; addr = '0;
+        rd = '0; wr = '0; addr = '0; pin = 0; select = 3'd7; 
+        offset = '0; region = '0;
 
-        // Test for (no read or write) & (both read and write)
-        $display("Test for (no read or write) & (both read and write)");
-        `GENERIC_DECODE(1'b0, 1'b0, base_addr(4'd0), 1'b0, 3'd7);
-        `GENERIC_DECODE(1'b1, 1'b1, base_addr(4'd0), 1'b1, 3'd0);
+        // Test 1: Idle state across all possible states
+        for(int i = 0; i < 16; i = i + 1) begin
+            offset = '0;
+            repeat (BIT_STATE) begin
+                addr = {region, offset};
+                `GENERIC_DECODE(rd, wr, addr, pin, select);
+                offset = offset + 1;
+            end
+            region = region + 1;
+        end
 
-        // Test various address ranges
-        $display("Test various address ranges");
-        `GENERIC_DECODE(1'b1, 1'b0, base_addr(4'd0), 1'b1, 3'd0); // DRAM read
-        `GENERIC_DECODE(1'b0, 1'b1, base_addr(4'd0), 1'b1, 3'd0); // DRAM write
+        // Test 2: Read across all possible states
+        rd = 1'b1; offset = '0; select = 3'd0; pin = 1'b1;
+        for(int i = 0; i < 16; i = i + 1) begin
+            repeat (BIT_STATE) begin
+                addr = {region, offset};
+                `GENERIC_DECODE(rd, wr, addr, pin, select);
+                offset = offset + 1;
+            end
+            region = region + 1;
 
-        `GENERIC_DECODE(1'b1, 1'b0, base_addr(4'd1), 1'b1, 3'd1); // DROM read
-        `GENERIC_DECODE(1'b0, 1'b1, base_addr(4'd1), 1'b1, 3'd1); // DROM write
+            // Drive the pin to 0 if the region is outside of the map range
+            if (region > 6) begin
+                pin = 0;
+                select = 3'd7;
+            end
+            else begin 
+                select = select + 1; 
+            end
+        end
 
-        `GENERIC_DECODE(1'b1, 1'b0, base_addr(4'd2), 1'b1, 3'd2); // DMAT read
-        `GENERIC_DECODE(1'b0, 1'b1, base_addr(4'd2), 1'b1, 3'd2); // DMAT write
+        // Test 3: Write across all possible states
+        rd = 0; wr = 1'b1; offset = '0; select = 3'd0; pin = 1'b1;
+        for(int i = 0; i < 16; i = i + 1) begin
+            repeat (BIT_STATE) begin
+                addr = {region, offset};
+                `GENERIC_DECODE(rd, wr, addr, pin, select);
+                offset = offset + 1;
+            end
+            region = region + 1;
 
-        `GENERIC_DECODE(1'b1, 1'b0, base_addr(4'd3), 1'b1, 3'd3); // DINT read
-        `GENERIC_DECODE(1'b0, 1'b1, base_addr(4'd3), 1'b1, 3'd3); // DINT write
+            // Drive the pin to 0 if the region is outside of the map range
+            if (region > 6) begin
+                pin = 0;
+                select = 3'd7;
+            end
+            else begin 
+                select = select + 1; 
+            end
+        end
 
-        `GENERIC_DECODE(1'b1, 1'b0, base_addr(4'd4), 1'b1, 3'd4); // DREG read
-        `GENERIC_DECODE(1'b0, 1'b1, base_addr(4'd4), 1'b1, 3'd4); // DREG write
+        // Test 4: Concurrent across all possible states
+        rd = 1'b1; offset = '0; select = 3'd0; pin = 1'b1;
+        for(int i = 0; i < 16; i = i + 1) begin
+            repeat (BIT_STATE) begin
+                addr = {region, offset};
+                `GENERIC_DECODE(rd, wr, addr, pin, select);
+                offset = offset + 1;
+            end
+            region = region + 1;
 
-        `GENERIC_DECODE(1'b1, 1'b0, base_addr(4'd5), 1'b1, 3'd5); // DEXEC read
-        `GENERIC_DECODE(1'b0, 1'b1, base_addr(4'd5), 1'b1, 3'd5); // DEXEC write
+            // Drive the pin to 0 if the region is outside of the map range
+            if (region > 6) begin
+                pin = 0;
+                select = 3'd7;
+            end
+            else begin 
+                select = select + 1; 
+            end
+        end
 
-        `GENERIC_DECODE(1'b1, 1'b0, base_addr(4'd6), 1'b1, 3'd6); // DSPI read
-        `GENERIC_DECODE(1'b0, 1'b1, base_addr(4'd6), 1'b1, 3'd6); // DSPI write
-
-        // Test for invalid address
-        $display("Test for invalid address");
-        `GENERIC_DECODE(1'b0, 1'b1, base_addr(MAX_REGION + 1'b1), 1'b0, 3'd7); // Invalid write
-
-        // Test address specificity
-        $display("Test address specificity");
-        `GENERIC_DECODE(1'b1, 1'b0, base_addr(4'd1) + 16'h0ABC, 1'b1, 3'd1);
-        `GENERIC_DECODE(1'b1, 1'b0, base_addr(4'd6) + (REGION_SIZE - 16'h0001), 1'b1, 3'd6);
-
-
-        // Test edge bounds
-        $display("Test edge bounds");
-        `GENERIC_DECODE(1'b1, 1'b0, base_addr(4'd0) + (REGION_SIZE - 16'h0001), 1'b1, 3'd0);
-        `GENERIC_DECODE(1'b0, 1'b1, base_addr(4'd7) + (REGION_SIZE - 16'h0001), 1'b0, 3'd7);
-        `GENERIC_DECODE(1'b1, 1'b1, base_addr(4'd6) + (REGION_SIZE - 16'h0001), 1'b1, 3'd6);
         $finish;
     end
 endmodule

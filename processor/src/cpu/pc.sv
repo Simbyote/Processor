@@ -1,4 +1,5 @@
 `default_nettype none
+`timescale 1ns / 1ps
 /* pc.sv
  * Purpose:
  *  Holds the instruction index of the next instruction to fetch from instruction
