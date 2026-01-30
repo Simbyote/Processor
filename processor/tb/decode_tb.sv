@@ -146,3 +146,5 @@ module decode_tb (
     end
 endmodule
 `default_nettype wire
+// Testing section of the decoder may have to change to be more generic and
+// modular. As it stands, it works but it is very specific.

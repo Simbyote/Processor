@@ -17,7 +17,21 @@
  * Notes:
  * - Contains no behavioral logic; purely structural design.
  */
+
 module top;
+    // Signal wires
+
+    // Instantiate sub-modules
+
+    // Instantiate testing module
+
+    initial begin
+        $dumpfile("top.vcd");
+        $dumpvars(0, top);
+    end
+    
+endmodule
+/* Decode top stimulus check
     // Signal wires
     logic rd, wr;
     logic [15:0] addr;
@@ -43,9 +57,8 @@ module top;
     );
 
     initial begin
-        $dumpfile("top.vcd");
+        $dumpfile("decode.vcd");
         $dumpvars(0, top);
     end
-
-endmodule
+*/
 `default_nettype wire

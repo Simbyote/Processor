@@ -25,7 +25,7 @@
  * by asserting `pc_we` and providing a valid `pc_next`.
  *
  * Parameters:
- * - PC_W: Width of the program counter (Initial value is 10).
+ * - ADDR_W: ADDR_W of the program counter (Initial value is 10).
  *
  * Inputs:
  * - clk: Clock signal.
@@ -40,20 +40,19 @@
  * Notes:
  * - PC is updated only under control of the execution FSM.
  */
- module pc #(
-    parameter int PC_W = 10
- ) (
+import params_pkg::*;   // Is sensitive; alternative: 
+// "params_pkg::ADDR_W" instead of "ADDR_W"
+module pc (
     input wire clk,
     input wire rst,
     input wire pc_we,
-    input wire [PC_W-1:0] pc_next,
+    input wire [ADDR_W-1:0] pc_next,
 
-    output logic [PC_W-1:0] pc_curr,
-    output logic [PC_W-1:0] pc_inc
- );
-
+    output logic [ADDR_W-1:0] pc_curr,
+    output logic [ADDR_W-1:0] pc_inc
+);
     // Offer the next sequential instruction
-    assign pc_inc = pc_curr + {{(PC_W-1){1'b0}}, 1'b1}; // Concatenate 1 to the MSB
+    assign pc_inc = pc_curr + {{(ADDR_W-1){1'b0}}, 1'b1}; // Adds 1 to the current PC
 
     // Update the program counter (sequential)
     always_ff @(posedge clk) begin  // Check on every rising edge
@@ -66,5 +65,5 @@
             pc_curr <= pc_next;
         end
     end
- endmodule
+endmodule
 `default_nettype wire

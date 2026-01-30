@@ -42,33 +42,15 @@
  *   - rd is active
  *   - wr is active
  */
+import params_pkg::*; // Is sensitive; alternative:
+// "params_pkg::ADDR_W" instead of "ADDR_W"
 module decode (
     input wire rd, wr,
-    input wire [15:0] addr,
+    input wire [ADDR_W-1:0] addr,
 
     output logic hit,
     output logic [2:0] did
 );
-     /* Internal wires for select signals
-    * - DRAM: Select signal for RAM (0x0000-0x0FFF range)
-    * - DROM: Select signal for ROM (0x1000-0x1FFF range)
-    * - DMAT: Select signal for matrix ALU (0x2000-0x2FFF range)
-    * - DINT: Select signal for integer ALU (0x3000-0x3FFF range)
-    * - DREG: Select signal for register file (0x4000-0x4FFF range)
-    * - DEXEC: Select signal for execution engine (0x5000-0x5FFF range)
-    * - DSPI: Select signal for SPI peripheral (0x6000-0x6FFF range)
-    * - DNONE: Invalid select signal
-    */
-    localparam logic [2:0]
-        DRAM = 3'd0,
-        DROM = 3'd1,
-        DMAT = 3'd2,
-        DINT = 3'd3,
-        DREG = 3'd4,
-        DEXE = 3'd5,
-        DSPI = 3'd6,
-        DNON = 3'd7;
-
     // Address decoding logic (combinational)
     always_comb begin
         hit = 1'b0;

@@ -8,6 +8,7 @@ SIMULATOR = vvp
 CURR_DIR  = $(shell pwd)
 SRC_DIR   = $(CURR_DIR)/src
 TB_DIR    = $(CURR_DIR)/tb
+INC_DIR   = $(CURR_DIR)/inc
 
 # Subdirectory variables
 BUILD_DIR = $(CURR_DIR)/build
@@ -20,6 +21,7 @@ TOP_MODULE = top
 TOP_OUT    = $(SIM_DIR)/top.out
 
 # Source file variables
+PKG_FILES = $(shell find $(INC_DIR) -type f -name "*.sv")
 SRC_FILES = $(shell find $(SRC_DIR) -type f -name "*.sv")
 TB_FILES  = $(shell find $(TB_DIR)  -type f -name "*.sv")
 
@@ -36,9 +38,10 @@ all: build $(TOP_OUT) run
 build:
 	mkdir -p $(SIM_DIR) $(WAVE_DIR)
 
-$(TOP_OUT): $(TOP_FILE) $(SRC_FILES) $(TB_FILES)
+$(TOP_OUT): $(PKG_FILES) $(TOP_FILE) $(SRC_FILES) $(TB_FILES)
 	$(IVERILOG) -g2012 -Wall -s $(TOP_MODULE) -o $@ \
-		$(SRC_FILES) $(TB_FILES) $(TOP_FILE)
+		$(PKG_FILES) $(SRC_FILES) $(TB_FILES) $(TOP_FILE)
+
 
 run: $(TOP_OUT)
 	$(SIMULATOR) $<
