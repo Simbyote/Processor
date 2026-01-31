@@ -1,4 +1,5 @@
 `default_nettype none
+`timescale 1ns/1ps
 /* fetch.sv
  * Purpose:
  *  Issue instruction fetch requests and present valid instructions
@@ -51,6 +52,19 @@
  * to prevent garbage instructions when unmapped or idle
  * - When `hold` is asserted, fetch does not update and deasserts `rd`
  * - When flush is asserted, set `valid` to 0 for one clock cycle
+ *
+ * Block diagram:
+
+                  +----------------------+
+pc_curr  ------> |                      |
+hit       -----> |       FETCH          | -----> addr
+did       -----> |                      | -----> rd
+drom_data -----> |                      | -----> instr
+hold      -----> |                      | -----> valid
+flush     -----> |                      |
+clk,rst   -----> |                      |
+                 +----------------------+
+
  */
 import params_pkg::*; // Is sensitive; alternative:
 // "params_pkg::ADDR_W" instead of "ADDR_W"

@@ -25,23 +25,33 @@ module ifetch_tb (
     input wire rd,
     input wire hit,
     input wire [2:0] did,
-    input wire [INST_W-1:0] instr,
-    input wire valid
+    input wire [INSTR_W-1:0] instr,
+    input wire valid,
 
     output logic clk,
     output logic rst,
     output logic pc_we,
-    output logic [ADDR_W-1:0] pc_next
+    output logic [ADDR_W-1:0] pc_next,
     output logic hold,
     output logic flush
 );
+    // Initialize clock and reset signals
+    initial begin
+        clk = 0;
+        forever #10 clk = ~clk;
+    end
+    initial begin
+        rst = 1;
+        repeat (2) @(posedge clk);
+        rst = 0;
+    end
 
+    // Proceed to testing
     
     initial begin
 
+        #100;
         $finish;
     end
 endmodule
-
-
 `default_nettype wire

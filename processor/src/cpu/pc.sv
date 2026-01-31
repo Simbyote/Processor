@@ -1,5 +1,5 @@
 `default_nettype none
-`timescale 1ns / 1ps
+`timescale 1ns/1ps
 /* pc.sv
  * Purpose:
  *  Holds the instruction index of the next instruction to fetch from instruction
@@ -39,6 +39,16 @@
  * 
  * Notes:
  * - PC is updated only under control of the execution FSM.
+ *
+ * Block diagram:
+
+                +----------------+
+pc_next -----> |                |
+pc_we   -----> |       PC       | -----> pc_curr
+clk     -----> |   (register)   |
+rst     -----> |                | -----> pc_inc
+               +----------------+
+
  */
 import params_pkg::*;   // Is sensitive; alternative: 
 // "params_pkg::ADDR_W" instead of "ADDR_W"

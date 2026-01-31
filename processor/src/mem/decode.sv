@@ -41,6 +41,15 @@
  *   - both are active, 
  *   - rd is active
  *   - wr is active
+ *
+ * Block Diagram:
+
+              +----------------+
+rd  -------> |                |
+wr  -------> |    DECODE      | -----> hit
+addr ------> |                | -----> did
+             +----------------+
+
  */
 import params_pkg::*; // Is sensitive; alternative:
 // "params_pkg::ADDR_W" instead of "ADDR_W"

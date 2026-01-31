@@ -1,4 +1,5 @@
 // inc/params_pkg.sv
+`timescale 1ns/1ps
 package params_pkg;
     // Global widths
     parameter int ADDR_W  = 16;
