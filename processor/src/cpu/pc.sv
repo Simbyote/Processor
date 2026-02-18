@@ -7,38 +7,38 @@
  *  execution FSM.
  *
  * Functions:
- * - Will increment PC during normal execution.
- * - Will update PC on branch instruction.
- * - Will reset PC to a known state on system reset.
+ * - Will increment PC during normal execution
+ * - Will update PC on branch instruction
+ * - Will reset PC to a known state on system reset
  *
  * Modules:
- * - pc: Program counter module.
+ * - pc: Program counter module
  *
  * Notes:
- * - PC updates occur only under control of the execution FSM.
- * - No instruction decoding or memory access occurs here.
+ * - PC updates occur only under control of the execution FSM
+ * - No instruction decoding or memory access occurs here
  */
 
 /* pc
  * Purpose:
  * Program counter module waits until execution FSM authorizes progression
- * by asserting `pc_we` and providing a valid `pc_next`.
+ * by asserting `pc_we` and providing a valid `pc_next`
  *
  * Parameters:
- * - ADDR_W: ADDR_W of the program counter (Initial value is 10).
+ * - ADDR_W: ADDR_W of the program counter (Initial value is 10)
  *
  * Inputs:
- * - clk: Clock signal.
- * - rst: Reset signal.
- * - pc_we: Write enable for the program counter.
- * - pc_next: Next value for the program counter.
+ * - clk: Clock signal
+ * - rst: Reset signal
+ * - pc_we: Write enable for the program counter
+ * - pc_next: Next value for the program counter
  *
  * Outputs:
- * - pc_curr: Current value of the program counter.
- * - pc_inc: Incremented value of the program counter.
+ * - pc_curr: Current value of the program counter
+ * - pc_inc: Incremented value of the program counter
  * 
  * Notes:
- * - PC is updated only under control of the execution FSM.
+ * - PC is updated only under control of the execution FSM
  *
  * Block diagram:
 

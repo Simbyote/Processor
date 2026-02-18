@@ -23,16 +23,18 @@ module decode_tb (
     input wire [2:0] did,
 
     output logic rd, wr,
-    output logic [15:0] addr
+    output logic [ADDR_W-1:0] addr
 );
+    // TODO: Change hard-coded parameter to be dynamic instead
+    // Refer to notes in `params_pkg.sv` in `inc/` directory
     localparam BIT_STATE = 2**12;
 
     // Local wires
     logic [3:0] region;
     logic [11:0] offset;
 
-    logic pin;
-    logic [2:0] select;
+    logic pin;          // Emulates `hit`
+    logic [2:0] sel;    // The device selected
 
     // Tests whether the decode module correctly identifies memory-mapped components
     `define GENERIC_DECODE(_rd, _wr, _addr, _hit, _did) \
@@ -68,77 +70,77 @@ module decode_tb (
      */
     initial begin
         // Initialize signals
-        rd = '0; wr = '0; addr = '0; pin = 0; select = 3'd7; 
+        rd = '0; wr = '0; addr = '0; pin = 0; sel = DNON; 
         offset = '0; region = '0;
 
         // Test 1: Idle state across all possible states
-        for(int i = 0; i < 16; i = i + 1) begin
+        for(int i = 0; i < ADDR_W; i = i + 1) begin
             offset = '0;
             repeat (BIT_STATE) begin
                 addr = {region, offset};
-                `GENERIC_DECODE(rd, wr, addr, pin, select);
+                `GENERIC_DECODE(rd, wr, addr, pin, sel);
                 offset = offset + 1;
             end
             region = region + 1;
         end
 
         // Test 2: Read across all possible states
-        rd = 1'b1; offset = '0; select = 3'd0; pin = 1'b1;
-        for(int i = 0; i < 16; i = i + 1) begin
+        rd = 1'b1; offset = '0; sel = DRAM; pin = 1'b1;
+        for(int i = 0; i < ADDR_W; i = i + 1) begin
             repeat (BIT_STATE) begin
                 addr = {region, offset};
-                `GENERIC_DECODE(rd, wr, addr, pin, select);
+                `GENERIC_DECODE(rd, wr, addr, pin, sel);
                 offset = offset + 1;
             end
             region = region + 1;
 
             // Drive the pin to 0 if the region is outside of the map range
-            if (region > 6) begin
+            if (region > DNON) begin
                 pin = 0;
-                select = 3'd7;
+                sel = DNON;
             end
             else begin 
-                select = select + 1; 
+                sel = sel + 1; 
             end
         end
 
         // Test 3: Write across all possible states
-        rd = 0; wr = 1'b1; offset = '0; select = 3'd0; pin = 1'b1;
-        for(int i = 0; i < 16; i = i + 1) begin
+        rd = 0; wr = 1'b1; offset = '0; sel = DRAM; pin = 1'b1;
+        for(int i = 0; i < ADDR_W; i = i + 1) begin
             repeat (BIT_STATE) begin
                 addr = {region, offset};
-                `GENERIC_DECODE(rd, wr, addr, pin, select);
+                `GENERIC_DECODE(rd, wr, addr, pin, sel);
                 offset = offset + 1;
             end
             region = region + 1;
 
             // Drive the pin to 0 if the region is outside of the map range
-            if (region > 6) begin
+            if (region >= DNON) begin
                 pin = 0;
-                select = 3'd7;
+                sel = DNON;
             end
             else begin 
-                select = select + 1; 
+                sel = sel + 1; 
             end
         end
 
         // Test 4: Concurrent across all possible states
-        rd = 1'b1; offset = '0; select = 3'd0; pin = 1'b1;
-        for(int i = 0; i < 16; i = i + 1) begin
+        rd = 1'b1; offset = '0; sel = DRAM; pin = 1'b1;
+        for(int i = 0; i < ADDR_W; i = i + 1) begin
             repeat (BIT_STATE) begin
                 addr = {region, offset};
-                `GENERIC_DECODE(rd, wr, addr, pin, select);
+                `GENERIC_DECODE(rd, wr, addr, pin, sel);
                 offset = offset + 1;
             end
             region = region + 1;
 
             // Drive the pin to 0 if the region is outside of the map range
-            if (region > 6) begin
+            if (region >= DNON) begin
                 pin = 0;
-                select = 3'd7;
+                sel = DNON;
             end
             else begin 
-                select = select + 1; 
+                sel = sel + 1; 
             end
         end
 

@@ -5,6 +5,11 @@ package params_pkg;
     parameter int ADDR_W  = 16;
     parameter int DATA_W  = 256;
     parameter int INSTR_W = 32;
+    // Adding regions for decode module? We currently want:
+    // 4 for MSB
+    // 12 for LSB
+    // parameter int MOD_ADDR = ADDR_W - 12;
+    // parameter int MOD_OFF = ADDR_W - 4;
 
     // Device IDs
     typedef enum logic [2:0] {

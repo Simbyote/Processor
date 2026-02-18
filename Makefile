@@ -1,6 +1,8 @@
 DIR ?= .
 DATA ?= .
 
+.DEFAULT_GOAL := help
+
 .PHONY:
 	tex tex.open tex.clean
 	verilog verilog.clean verilog.sim

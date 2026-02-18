@@ -60,15 +60,18 @@ module decode (
     output logic hit,
     output logic [2:0] did
 );
-    // Address decoding logic (combinational)
-    always_comb begin
+    // Initialize outputs
+    initial begin
         hit = 1'b0;
         did = DNON;
+    end
 
+    // Address decoding logic (combinational)
+    always_comb begin
         // Decode when read or write is active
         if (rd || wr) begin
             // Decode address range
-            unique case (addr[15:12])
+            unique case (addr[ADDR_W-1:12])
                 4'h0: begin 
                     hit = 1'b1;
                     did = DRAM;
