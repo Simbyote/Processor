@@ -49,6 +49,14 @@ module ifetch_tb (
     output logic hold,
     output logic flush
 );
+    localparam DBASE = 12'h000;   // Base address of instruction ROM
+    localparam DINC = 12'h004;    // Increment per instruction (4 bytes)
+    localparam DROM = 3'b001;     // Device ID value decode for ROM
+
+    // Local wires
+    logic [ADDR_W-1:0] pc_inc;
+    logic [2:0] did_rom;
+
     // Initialize clock and reset signals
     initial begin
         clk = 0;
@@ -74,7 +82,7 @@ module ifetch_tb (
      * Notes:
      * - `valid` asserts in the next cycle after `hit`/`did` is verified
      */
-
+     
      /* Test 2: Reset Phase
       * Let:
       * - An existing reset run `rst = 1` for two cycles, then `rst = 0`
@@ -121,7 +129,56 @@ module ifetch_tb (
          */
     
     initial begin
+        // Test 1: Constants and Expected Behavior
+        @(posedge clk);
+        pc_next = DBASE;
+        hold = 0;
+        flush = 0;
+        @(posedge clk);
+        pc_we = 1;
+        @(posedge clk);
+        pc_we = 0;
 
+        // Test 2: Reset Phase
+        rst = 1;
+        @(posedge clk);
+        rst = 0;
+
+        // Test 3: Drive First PC Value
+        @(posedge clk);
+        pc_next = DBASE;
+        hold = 0;
+        flush = 0;
+        @(posedge clk);
+        pc_we = 1;
+        @(posedge clk);
+        pc_we = 0;
+
+        // Test 4: Three Sequential Checks
+        repeat (3) begin
+            @(posedge clk);
+            pc_next = pc_curr + DINC;
+            hold = 0;
+            flush = 0;
+            @(posedge clk);
+            pc_we = 1;
+            @(posedge clk);
+            pc_we = 0;
+        end
+
+        // Test 5: Stop Condition
+        @(posedge clk);
+        pc_we = 0;
+        repeat (10) @(posedge clk) begin
+            pc_next = pc_next + DINC; // Drive pc_next to verify that pc_curr and addr stop changing
+        end
+        // Drive pc_next to verify that pc_curr and addr stop changing
+        pc_we = 1;
+        @(posedge clk);
+        pc_we = 0;
+
+        // Now the pc should be updated to the current pc_next value
+        // addr should be updated to the current pc_next value
         #100;
         $finish;
     end

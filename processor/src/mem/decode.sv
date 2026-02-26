@@ -66,12 +66,15 @@ module decode (
         did = DNON;
     end
 
+    logic [3:0] addr_bits; // The upper 4 bits of the address for decoding
+    assign addr_bits = addr[ADDR_W-1:12];
+
     // Address decoding logic (combinational)
     always_comb begin
         // Decode when read or write is active
         if (rd || wr) begin
             // Decode address range
-            unique case (addr[ADDR_W-1:12])
+            case (addr_bits)
                 4'h0: begin 
                     hit = 1'b1;
                     did = DRAM;

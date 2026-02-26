@@ -13,6 +13,6 @@
  *
  * Notes:
  * - Does not implement SPI protocol logic internally.
- * - Relies on a provided SPI module.
+ * - Relies on a provided SPI module (S25FL204K - 4-Mbit 3.0 V SPI Flash Memory)
  */
 `default_nettype wire

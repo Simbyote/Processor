@@ -93,7 +93,7 @@ module fetch (
     logic instr_ok;
     assign instr_ok = hit && (did == DROM);
 
-    // Latch fetched instruction (sequential)
+    // Latch fetched instruction (synchronous)
     always_ff @(posedge clk) begin
         if (rst) begin  // On reset
             instr <= '0;
