@@ -57,7 +57,7 @@
 
                   +----------------------+
 pc_curr  ------> |                      |
-hit       -----> |       FETCH          | -----> addr
+hit       -----> |       Fetch          | -----> addr
 did       -----> |                      | -----> rd
 drom_data -----> |                      | -----> instr
 hold      -----> |                      | -----> valid
@@ -69,7 +69,7 @@ clk,rst   -----> |                      |
 import params_pkg::*; // Is sensitive; alternative:
 // "params_pkg::ADDR_W" instead of "ADDR_W"
 // "params_pkg::INSTR_W" instead of "INSTR_W"
-module fetch (
+module Fetch (
     input wire clk,
     input wire rst,
     input wire hold,

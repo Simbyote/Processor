@@ -42,13 +42,14 @@
  *   - rd is active
  *   - wr is active
  *
- * Block Diagram:
+ * 
+    Block Diagram:
 
-              +----------------+
-rd  -------> |                |
-wr  -------> |    DECODE      | -----> hit
-addr ------> |                | -----> did
-             +----------------+
+                 +----------------+
+    rd  -------> |                |
+    wr  -------> |    DECODE      | -----> hit
+    addr ------> |                | -----> did
+                 +----------------+
 
  */
 import params_pkg::*; // Is sensitive; alternative:
@@ -69,7 +70,7 @@ module decode (
     logic [3:0] addr_bits; // The upper 4 bits of the address for decoding
     assign addr_bits = addr[ADDR_W-1:12];
 
-    // Address decoding logic (combinational)
+    // Address decoding logic
     always_comb begin
         // Decode when read or write is active
         if (rd || wr) begin

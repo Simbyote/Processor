@@ -21,7 +21,7 @@ TOP_MODULE = top
 TOP_OUT    = $(SIM_DIR)/top.out
 
 # Source file variables
-PKG_FILES = $(shell find $(INC_DIR) -type f -name "*.sv")
+PKG_FILES = $(shell find $(INC_DIR) -type f -name "*.vh")
 SRC_FILES = $(shell find $(SRC_DIR) -type f -name "*.sv")
 TB_FILES  = $(shell find $(TB_DIR)  -type f -name "*.sv")
 
@@ -40,7 +40,7 @@ build:
 
 $(TOP_OUT): $(PKG_FILES) $(TOP_FILE) $(SRC_FILES) $(TB_FILES)
 	$(IVERILOG) -g2012 -Wall -s $(TOP_MODULE) -o $@ \
-		$(PKG_FILES) $(SRC_FILES) $(TB_FILES) $(TOP_FILE)
+		$(PKG_FILES) $(TOP_FILE) $(SRC_FILES) $(TB_FILES)
 
 
 run: $(TOP_OUT)

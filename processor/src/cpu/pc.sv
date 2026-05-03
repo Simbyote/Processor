@@ -52,7 +52,7 @@ rst     -----> |                | -----> pc_inc
  */
 import params_pkg::*;   // Is sensitive; alternative: 
 // "params_pkg::ADDR_W" instead of "ADDR_W"
-module pc (
+module PC (
     input wire clk,
     input wire rst,
     input wire pc_we,
