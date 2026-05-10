@@ -1,5 +1,5 @@
 `default_nettype none
-`timescale 1ns/1ps
+`timescale 1ns/1ns
 /* decode.sv
  * Purpose:
  *  Decodes memory addresses and selects the appropriate memory-mapped
@@ -52,19 +52,18 @@
                  +----------------+
 
  */
-import params_pkg::*; // Is sensitive; alternative:
-// "params_pkg::ADDR_W" instead of "ADDR_W"
-module decode (
+module Decode (
     input wire rd, wr,
     input wire [ADDR_W-1:0] addr,
 
     output logic hit,
     output logic [2:0] did
 );
+
     // Initialize outputs
     initial begin
         hit = 1'b0;
-        did = DNON;
+        did = None;
     end
 
     logic [3:0] addr_bits; // The upper 4 bits of the address for decoding
@@ -78,35 +77,31 @@ module decode (
             case (addr_bits)
                 4'h0: begin 
                     hit = 1'b1;
-                    did = DRAM;
+                    did = MainMem;
                 end
                 4'h1: begin
                     hit = 1'b1;
-                    did = DROM;
+                    did = InstrMem;
                 end
                 4'h2: begin
                     hit = 1'b1;
-                    did = DMAT;
+                    did = MatrixAlu;
                 end
                 4'h3: begin
                     hit = 1'b1;
-                    did = DINT;
+                    did = IntAlu;
                 end
                 4'h4: begin
                     hit = 1'b1;
-                    did = DREG;
+                    did = Registers;
                 end
                 4'h5: begin
                     hit = 1'b1;
-                    did = DEXE;
-                end
-                4'h6: begin
-                    hit = 1'b1;
-                    did = DSPI;
+                    did = Execute;
                 end
                 default: begin
-                    hit = 1'b0;
-                    did = DNON;
+                    hit = 1'b1;
+                    did = None;
                 end
             endcase
         end

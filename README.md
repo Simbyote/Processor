@@ -80,7 +80,7 @@ appropriate size matrix
 
 ![System Architecture](processor/docs/figs/arch.png "System Architecture")
 
-The system is architected to be 256 bits.
+The system is architected to be 256 bits
 
 ## Memory Organization
 
@@ -88,7 +88,6 @@ The system is architected to be 256 bits.
 *not* on the address bus
 
 - Instruction memory is only limited to user utilization
-
 - The table below shows the organization of memory mapping
 
 | Memory Location | Module                  |
@@ -100,7 +99,7 @@ The system is architected to be 256 bits.
 | 4000h           | Internal Register Block |
 | 5000h           | Execution Engine        |
 
-- The address bus will be 16 bits.
+- The address bus will be 16 bits
 
 | Module Address | Module Offset                |
 |----------------|------------------------------|
@@ -142,7 +141,7 @@ not required)
 
 The instruction set will be a subset of the following table:
 
-> **Operand encoding:** The MSB of any `Reg/Mem` field selects the operand type — `0` = memory address, `1` = register.
+> **Operand encoding:** The MSB of any `Reg/Mem` field selects the operand type — `0` = memory address, `1` = register
 
 | Instruction   | Opcode    | Destination   | Source 1  | Source 2    |
 |---------------|-----------|---------------|-----------|-------------|
@@ -169,40 +168,39 @@ The instruction set will be a subset of the following table:
 - Matrix Operations:
 
 1. Add the first matrix to the second matrix and store the result in
-memory.
+memory
 2. Scale the first matrix by the value in location 0x0A and store in
-memory.
+memory
 3. Add the 16-bit numbers at the memory location 0x0a to location 0x0b
-and store them in a temporary register.
+and store them in a temporary register
 4. Subtract the first matrix from the result in step 2 and store the
-result somewhere else in memory.
+result somewhere else in memory
 5. If results from step 4 is less than the result from step 2, go to
-step 7.
-6. Transpose the result from step 1 and store it in memory.
-7. If the memory location 5 != to location 8, go to step 6.
+step 7
+6. Transpose the result from step 1 and store it in memory
+7. If the memory location 5 != to location 8, go to step 6
 8. Scale immediate result in step 2 by the data in the instruction and
-store in a temporary register.
+store in a temporary register
 9. Multiply the result from step 4 by the result in step 5, storing the
-result in memory.
+result in memory
 
 - Integer operations:
   - Note that those which are in memory locations 0 and 1 are
-assumed to only use the LSW (first 16 bits) of the 256-bit data located at 0
-and 1.
+  assumed to only use the LSW (first 16 bits) of the 256-bit data located at 0
+  and 1
 
 1. Multiply the integer value in memory location 0 by memory location 1.
-Store it in memory location 0x0A.
-2. Subtract the integer value in memory location 1 from memory location 0x0A.
-Store it in a register.
+Store it in memory location 0x0A
+2. Subtract the integer value in memory location 1 from memory location 0x0A
 3. Divide the result from integer step 1 by the result from integer step 2
-and store the result in location 0x0B.
+and store the result in location 0x0B
 
 ***
 
 ## Input Data
 
 The following input data is used in the grading testbench. The instruction ROM program
-must be written to operate on these values.
+must be written to operate on these values
 
 **Matrix 1** (stored at address `0000h`):
 
@@ -278,7 +276,7 @@ Processor
     │   ├── out/   # Output files
     │   └── sim/   # Simulation files
     ├── pkgs
-    │   └── params_pkg.sv # Global parameters
+    │   └── params.vh # Global parameters
     ├── src
     │   ├── alu
     │   │   ├── int.sv  # Integer ALU
@@ -303,15 +301,13 @@ Processor
   - `build` contains the output files
   - `src` contains the main modules of the project
   - `tb` contains the testbench for the project
-- Each section of language of code—System Verilog or LaTeX—contains their own Makefile
-that drive the build process. The tex files are commanded by the `latex.mk` file
-and the System Verilog files are commanded by the `verilog.mk` file. Two commands can
-proceed the main build process:
+The System Verilog files are commanded by the `verilog.mk` file. Two
+commands can proceed the main build process:
   - `DIR` is the path to the current directory of the Makefile. This is used in
-    conjunction with the `latex.mk` file to build the documentation per directory.
+    conjunction with the `latex.mk` file to build the documentation per directory
   - `DATA` is the path to the data file (the simulation output), without an extension,
     that is used in conjunction with the `verilog.mk` file to analyze the System Verilog
-    files via GTKwave.
+    files via GTKwave
 
 ***
 

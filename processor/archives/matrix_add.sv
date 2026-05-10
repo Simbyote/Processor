@@ -24,7 +24,7 @@
  *   3 -> StatusIn - write-any triggers addition
  */ 
 
-module MatrixAlu (
+module MatrixAdd (
     input  logic Clk,
     input  logic nReset,
     input  logic nRead,

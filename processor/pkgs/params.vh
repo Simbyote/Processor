@@ -1,9 +1,16 @@
-// /params_pkg.sv
-
-// 
+/* params_pkg.sv
+ * 
+ * Purpose:
+ *  Contains all the parameters for the processor design
+ */
+// Additional Width parameters // ===============================
 parameter int ADDR_W  = 16;
+parameter int LOCAL_W = 12;
+parameter int OPCODE = ADDR_W-LOCAL_W;
 parameter int DATA_W  = 256;
 parameter int INSTR_W = 32;
+
+// ==============================================================
 
 // Module adresses
 parameter MainMem = 0;
@@ -12,6 +19,7 @@ parameter MatrixAlu = 2;
 parameter IntAlu = 3;
 parameter Registers = 4;
 parameter Execute = 5;
+parameter None = 6; // Represents no module
 
 // Alu Register setup // same register sequence for both ALU's 
 parameter AluStatusIn = 0;

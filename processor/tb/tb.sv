@@ -1,3 +1,5 @@
+`default_nettype none
+`timescale 1ns/1ns
 // Mike Orduna -- Testbench Provided by Mark W Welker
 // HDL 4321 Spring 2026
 module TestMatrix  (
@@ -15,3 +17,4 @@ module TestMatrix  (
     // Drives the clock
 	always  #5 Clk = ~Clk;
 endmodule
+`default_nettype wire

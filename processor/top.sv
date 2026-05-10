@@ -1,20 +1,37 @@
-
+`default_nettype none
+`timescale 1ns/1ns
 // Mike Orduna -- Top Provided by Mark W Welker
 // HDL 4321 Spring 2026
 // Final Project - Simplistic Processing Engine
 //
 // Main memory MUST be allocated in the MainMemory module as per the next line.
-//  logic [255:0]MainMemory[12]; // this is the physical memory
+// logic [255:0]MainMemory[12]; // this is the physical memory
+
+//`include "params.vh"
 module top ();
     wire [255:0] DataBus;
-    logic nRead,nWrite,nReset,Clk;
+    logic nRead, nWrite, nReset, Clk;
     logic [15:0] address;
 
+    // Additional tristate assignments for different DataBus paths 
+    // Instruction Memory
+    logic [INSTR_W-1:0] InstrDataout;
+    assign DataBus = (address[ADDR_W-1:LOCAL_W-1] == InstrMem && !nRead)
+                     ? {{(DATA_W-INSTR_W){1'b0}}, InstrDataout}    // 224'b0 (256-32)
+                     : 'z;
+
+    // Main Memory
+    logic [DATA_W-1:0] MainDataout;
+    assign DataBus = (address[ADDR_W-1:LOCAL_W-1] == MainMem && !nRead)
+                     ? MainDataout                                // 256'b0
+                     : 'z;
+
+    // Failure flag
     logic Fail;
 
     InstructionMemory U1(
         .Clk(Clk),
-        .DataBus(DataBus),
+        .Dataout(InstrDataout),
         .address(address),
         .nRead(nRead),
         .nReset(nReset)
@@ -22,7 +39,7 @@ module top ();
 
     MainMemory U2(
         .Clk(Clk),
-        .DataBus(DataBus),
+        .Dataout(MainDataout),
         .address(address),
         .nRead(nRead),
         .nWrite(nWrite),
@@ -31,16 +48,16 @@ module top ();
 
     Execution U3(
         .Clk(Clk),
-        .DataBus(DataBus),
+        .Dataout(DataBus),
         .address(address),
         .nRead(nRead),
         .nWrite(nWrite),
         .nReset(nReset)
     );
 
-    MatrixAlu U4(
+    MatrixALU U4(   // Capitalized to remove matching calls b/w module and MatrixAlu parameter 
         .Clk(Clk),
-        .DataBus(DataBus),
+        .Dataout(DataBus),
         .address(address),
         .nRead(nRead),
         .nWrite(nWrite),
@@ -49,7 +66,7 @@ module top ();
 
     IntegerAlu U5(
         .Clk(Clk),
-        .DataBus(DataBus),
+        .Dataout(DataBus),
         .address(address),
         .nRead(nRead),
         .nWrite(nWrite),
@@ -60,12 +77,6 @@ module top ();
         .Clk(Clk),
         .nReset(nReset)
     );
-
-    initial begin
-        $dumpfile("dump.vcd");
-        $dumpvars(1);
-        Fail = 0;
-    end
 
     always @(DataBus) begin // this block checks to make certain the proper data is in the memory
         if (DataBus[31:0] == 32'hff000000)
@@ -156,4 +167,12 @@ module top ();
             end
         end
     end
+
+    initial begin
+        $dumpfile("dump.vcd");
+        $dumpvars(1);
+        Fail = 0;
+        #1000 $finish;
+    end
 endmodule
+`default_nettype none

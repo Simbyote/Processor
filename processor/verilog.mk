@@ -8,7 +8,7 @@ SIMULATOR = vvp
 CURR_DIR  = $(shell pwd)
 SRC_DIR   = $(CURR_DIR)/src
 TB_DIR    = $(CURR_DIR)/tb
-INC_DIR   = $(CURR_DIR)/inc
+INC_DIR   = -I$(CURR_DIR)/pkgs
 
 # Subdirectory variables
 BUILD_DIR = $(CURR_DIR)/build
@@ -39,7 +39,7 @@ build:
 	mkdir -p $(SIM_DIR) $(WAVE_DIR)
 
 $(TOP_OUT): $(PKG_FILES) $(TOP_FILE) $(SRC_FILES) $(TB_FILES)
-	$(IVERILOG) -g2012 -Wall -s $(TOP_MODULE) -o $@ \
+	$(IVERILOG) -g2012 -Wall -s $(TOP_MODULE) -o $@ $(INC_DIR)\
 		$(PKG_FILES) $(TOP_FILE) $(SRC_FILES) $(TB_FILES)
 
 

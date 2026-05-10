@@ -1,5 +1,5 @@
 `default_nettype none
-`timescale 1ns/1ps
+`timescale 1ns/1ns
 /* ifetch_tb.sv
  * Purpose:
  *  Drives the instruction fetch module and observes its outputs:
@@ -32,7 +32,6 @@
  * Notes:
  * 
  */
-import params_pkg::*;
 module ifetch_tb (
     input wire [ADDR_W-1:0] pc_curr,
     input wire [ADDR_W-1:0] addr,

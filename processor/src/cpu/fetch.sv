@@ -1,5 +1,5 @@
 `default_nettype none
-`timescale 1ns/1ps
+`timescale 1ns/1ns
 /* fetch.sv
  * Purpose:
  *  Issue instruction fetch requests and present valid instructions
@@ -54,21 +54,17 @@
  * - When flush is asserted, set `valid` to 0 for one clock cycle
  *
  * Block diagram:
-
                   +----------------------+
-pc_curr  ------> |                      |
-hit       -----> |       Fetch          | -----> addr
-did       -----> |                      | -----> rd
-drom_data -----> |                      | -----> instr
-hold      -----> |                      | -----> valid
-flush     -----> |                      |
-clk,rst   -----> |                      |
-                 +----------------------+
-
+ pc_curr  ------> |                      |
+ hit       -----> |       Fetch          | -----> addr
+ did       -----> |                      | -----> rd
+ drom_data -----> |                      | -----> instr
+ hold      -----> |                      | -----> valid
+ flush     -----> |                      |
+ clk       -----> |                      |
+ rst       -----> |                      |
+                  +----------------------+
  */
-import params_pkg::*; // Is sensitive; alternative:
-// "params_pkg::ADDR_W" instead of "ADDR_W"
-// "params_pkg::INSTR_W" instead of "INSTR_W"
 module Fetch (
     input wire clk,
     input wire rst,
@@ -91,7 +87,7 @@ module Fetch (
 
     // Generate a successful fetch signal
     logic instr_ok;
-    assign instr_ok = hit && (did == DROM);
+    assign instr_ok = hit && (did == MainMem);
 
     // Latch fetched instruction (synchronous)
     always_ff @(posedge clk) begin

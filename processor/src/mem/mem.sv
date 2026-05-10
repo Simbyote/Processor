@@ -1,23 +1,23 @@
 `default_nettype none
+`timescale 1ns/1ns
 /* mem.sv
  * Purpose:
  *  Implements the main memory module for the processor, providing storage
  *  for instructions and data. Supports read and write operations based on
  *  address decoding
  */
-module MainMemory(
-    input logic Clk,
-    input logic [255:0] Dataout,
-    input logic [15:0] address,
-    input logic nRead,
-    input logic nWrite,
-    input logic nReset
+module MainMemory (
+    input  logic Clk,
+    inout  tri [DATA_W-1:0] Dataout,
+    input  logic [ADDR_W-1:0] address,
+    input  logic nRead,
+    input  logic nWrite,
+    input  logic nReset
 );
-`include "params.vh"
 
-    logic [255:0]MainMemory[14]; // this is the physical memory
+    logic [DATA_W-1:0]MainMemory[14]; // this is the physical memory
     logic ItsMe; // the address bus is talking to this module. used to enable tristate buffers
-    logic [255:0] MemToOutput; // this is a temporary data register to be set to go to the output 
+    logic [DATA_W-1:0] MemToOutput; // this is a temporary data register to be set to go to the output 
 
     always_ff @(negedge Clk or negedge nReset) begin
         if (~nReset) begin
@@ -37,7 +37,7 @@ module MainMemory(
             MainMemory[13] = 256'h0;
             MemToOutput=0;
         end
-        else if(address[15:12] == MainMem) begin
+        else if(address[ADDR_W-1:LOCAL_W-1] == MainMem) begin
             if (~nRead) begin
                 ItsMe = 1; // Only Drive Bus on read
                 MemToOutput = MainMemory[address[3:0]]; // data will remain on dataout until it is changed.
@@ -49,6 +49,8 @@ module MainMemory(
         end
         else ItsMe = 0;
     end 	
-assign Dataout = ItsMe ? MemToOutput : 255'bz;
+
+    // Assign the main memory to the databus
+    assign Dataout = ItsMe ?  MemToOutput : 'z;
 endmodule
 `default_nettype wire

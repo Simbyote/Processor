@@ -1,15 +1,10 @@
 `default_nettype none
-// Mark W. welker
-// Instruction memory. 
-// holds the instructions that the processor will execute.
-//
-// the address lines are generic and each module must handle thier own decode. 
-// The address bus is large enough that each module can contain a local address decode. This will save on multiple enmables. 
-// bit 11-0 are for adressing inside each unit.
-// nWrite = 0 means databus is being written into the part on the falling edge of write
-// nRead = 0 means it is expected to drive the databus while this signal is low and the address is correct until the nRead goes high independent of addressd bus.
-
-
+`timescale 1ns/1ns
+/* instr.sv
+ * Purpose:
+ *  Holds the instructions that the processor will execute. Is
+ *  a read-only memory.
+ */
 
 //parameter MainMemEn = 0;
 //parameter RegisterEn = 1;
@@ -26,48 +21,45 @@
 //parameter  ALU_Result = 4;
 //parameter Overflow_err = 5;
 
-//////////////////////////////
-//Moved stop to third instruction for this example
-/////////////////////////////////////////////////
-// instruction: OPcode :: dest :: src1 :: src2 Each section is 8 bits.
-//Stop::FFh::00::00::00
-//MMult1::00h::Reg/mem::Reg/mem::Reg/mem
-//MMult2::01h::Reg/mem::Reg/mem::Reg/mem
-//MMult3::02h::Reg/mem::Reg/mem::Reg/mem
-//Madd::03h::Reg/mem::Reg/mem::Reg/mem
-//Msub::04h::Reg/mem::Reg/mem::Reg/mem
-//Mtranspose::05h::Reg/mem::Reg/mem::Reg/mem
-//MScale::06h::Reg/mem::Reg/mem::Reg/mem
-//MScaleImm::07h:Reg/mem::Reg/mem::Immediate
-//IntAdd::10h::Reg/mem::Reg/mem::Reg/mem
-//IntSub::11h::Reg/mem::Reg/mem::Reg/mem
-//IntMult::12h::Reg/mem::Reg/mem::Reg/mem
-//IntDiv::13h::Reg/mem::Reg/mem::Reg/mem
-
-
+/* Moved stop to third instruction for this example
+ * instruction: OPcode :: dest :: src1 :: src2 Each section is 8 bits.
+ * Stop::FFh::00::00::00
+ * MMult1::00h::Reg/mem::Reg/mem::Reg/mem
+ * MMult2::01h::Reg/mem::Reg/mem::Reg/mem
+ * MMult3::02h::Reg/mem::Reg/mem::Reg/mem
+ * Madd::03h::Reg/mem::Reg/mem::Reg/mem
+ * Msub::04h::Reg/mem::Reg/mem::Reg/mem
+ * Mtranspose::05h::Reg/mem::Reg/mem::Reg/mem
+ * MScale::06h::Reg/mem::Reg/mem::Reg/mem
+ * MScaleImm::07h:Reg/mem::Reg/mem::Immediate
+ * IntAdd::10h::Reg/mem::Reg/mem::Reg/mem
+ * IntSub::11h::Reg/mem::Reg/mem::Reg/mem
+ * IntMult::12h::Reg/mem::Reg/mem::Reg/mem
+ * IntDiv::13h::Reg/mem::Reg/mem::Reg/mem
+ */
+`include "params.vh"
 module InstructionMemory(
     input logic Clk,
-    inout tri [31:0]Dataout,    // Changed from logic to tri for bidirectional bus
-    input logic [15:0] address,
+    inout tri [INSTR_W-1:0]Dataout,    // Changed from logic to tri for bidirectional bus
+    input logic [ADDR_W-1:0] address,
     input logic nRead,
     input logic nReset
 );
-`include "params.vh"
+//`include "params.vh"
 
-    logic [31:0]InstructMemory[15]; // this is the physical memory
+    logic [INSTR_W-1:0]InstructMemory[15]; // this is the physical memory
     logic ItsMe; // the address bus is talking to this module. used to enable tristate buffers
-    logic [31:0] InstToOutput; // this is a temporary data register to be set to go to the output
+    logic [INSTR_W-1:0] InstToOutput; // this is a temporary data register to be set to go to the output
 
-    always_ff @(negedge Clk or negedge nReset)
-    begin
+    always_ff @(negedge Clk or negedge nReset) begin
     if (!nReset)
         InstToOutput = 0;
     else begin
-    if(address[15:12] == InstrMem) // talking to Instruction IntstrMemEn
+    if(address[ADDR_W-1:LOCAL_W-1] == InstrMem) // talking to Instruction IntstrMemEn
             begin
                 ItsMe = 1;
                 if(~nRead)begin
-                    InstToOutput <= InstructMemory[address[11:0]]; // data will reamin on dataout until it is changed.
+                    InstToOutput <= InstructMemory[address[LOCAL_W-1:0]]; // data will reamin on dataout until it is changed.
                 end
             end
         else ItsMe = 0; 
@@ -90,6 +82,8 @@ module InstructionMemory(
         InstructMemory[11] = Instruct12;
         InstructMemory[12] = Instruct13;
     end 
-    assign Dataout = ItsMe ? InstToOutput : 32'bz;
+
+    // Assign the instruction memory to the databus
+    assign Dataout = ItsMe ?  {{(INSTR_W-32){1'b0}}, InstToOutput} : {{(INSTR_W-1){1'bz}}};
 endmodule
 `default_nettype wire
