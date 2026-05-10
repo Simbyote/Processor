@@ -15,6 +15,7 @@
  * - Operations may be multi-cycle.
  * - Execution is fully controlled by the execution FSM.
  */
+//`include "params.vh"
 module MatrixALU (
     input logic Clk,
     inout tri [DATA_W-1:0] Dataout, // Set to tri for bidirectional bus

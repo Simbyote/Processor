@@ -16,6 +16,7 @@
  * - Uses built-in arithmetic operators for synthesis.
  * - Overflow handling is not required (but is optional).
  */
+//`include "params.vh"
 module IntegerAlu (
     input logic Clk,
     inout tri [DATA_W-1:0] Dataout, // Set to tri for bidirectional bus

@@ -6,6 +6,7 @@
  *  for instructions and data. Supports read and write operations based on
  *  address decoding
  */
+//`include "params.vh"
 module MainMemory (
     input  logic Clk,
     inout  tri [DATA_W-1:0] Dataout,
@@ -37,7 +38,8 @@ module MainMemory (
             MainMemory[13] = 256'h0;
             MemToOutput=0;
         end
-        else if(address[ADDR_W-1:LOCAL_W-1] == MainMem) begin
+        // [15:12]
+        else if(address[ADDR_W-1:LOCAL_W] == MainMem) begin // talking to Main Memory
             if (~nRead) begin
                 ItsMe = 1; // Only Drive Bus on read
                 MemToOutput = MainMemory[address[3:0]]; // data will remain on dataout until it is changed.

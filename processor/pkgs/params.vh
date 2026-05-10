@@ -3,13 +3,21 @@
  * Purpose:
  *  Contains all the parameters for the processor design
  */
-// Additional Width parameters // ===============================
+// Additional Parameters // ===============================
+// Widths
 parameter int ADDR_W  = 16;
 parameter int LOCAL_W = 12;
-parameter int OPCODE = ADDR_W-LOCAL_W;
 parameter int DATA_W  = 256;
 parameter int INSTR_W = 32;
 
+// Decode IDs
+parameter DRAM = 3'd0;  // MainMem
+parameter DROM = 3'd1;  // InstrMem
+parameter DMAT = 3'd2;  // MatrixAlu
+parameter DINT = 3'd3;  // IntAlu
+parameter DREG = 3'd4;  // Registers
+parameter DEXE = 3'd5;  // Execute
+parameter DNON = 3'd7;  // None
 // ==============================================================
 
 // Module adresses

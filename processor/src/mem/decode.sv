@@ -52,6 +52,7 @@
                  +----------------+
 
  */
+//`include "params.vh"
 module Decode (
     input wire rd, wr,
     input wire [ADDR_W-1:0] addr,
@@ -63,7 +64,7 @@ module Decode (
     // Initialize outputs
     initial begin
         hit = 1'b0;
-        did = None;
+        did = DNON;
     end
 
     logic [3:0] addr_bits; // The upper 4 bits of the address for decoding
@@ -77,33 +78,36 @@ module Decode (
             case (addr_bits)
                 4'h0: begin 
                     hit = 1'b1;
-                    did = MainMem;
+                    did = DRAM;
                 end
                 4'h1: begin
                     hit = 1'b1;
-                    did = InstrMem;
+                    did = DROM;
                 end
                 4'h2: begin
                     hit = 1'b1;
-                    did = MatrixAlu;
+                    did = DMAT;
                 end
                 4'h3: begin
                     hit = 1'b1;
-                    did = IntAlu;
+                    did = DINT;
                 end
                 4'h4: begin
                     hit = 1'b1;
-                    did = Registers;
+                    did = DREG;
                 end
                 4'h5: begin
                     hit = 1'b1;
-                    did = Execute;
+                    did = DEXE;
                 end
                 default: begin
-                    hit = 1'b1;
-                    did = None;
+                    hit = 1'b0;
+                    did = DNON;
                 end
             endcase
+        end else begin
+            hit = 1'b0;
+            did = DNON;
         end
     end
 endmodule

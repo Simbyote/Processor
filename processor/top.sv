@@ -7,22 +7,22 @@
 // Main memory MUST be allocated in the MainMemory module as per the next line.
 // logic [255:0]MainMemory[12]; // this is the physical memory
 
-//`include "params.vh"
+`include "params.vh"
 module top ();
-    wire [255:0] DataBus;
+    tri [255:0] DataBus;
     logic nRead, nWrite, nReset, Clk;
     logic [15:0] address;
 
     // Additional tristate assignments for different DataBus paths 
     // Instruction Memory
-    logic [INSTR_W-1:0] InstrDataout;
-    assign DataBus = (address[ADDR_W-1:LOCAL_W-1] == InstrMem && !nRead)
+    tri [INSTR_W-1:0] InstrDataout;
+    assign DataBus = (address[ADDR_W-1:LOCAL_W] == InstrMem && !nRead)
                      ? {{(DATA_W-INSTR_W){1'b0}}, InstrDataout}    // 224'b0 (256-32)
                      : 'z;
 
     // Main Memory
-    logic [DATA_W-1:0] MainDataout;
-    assign DataBus = (address[ADDR_W-1:LOCAL_W-1] == MainMem && !nRead)
+    tri [DATA_W-1:0] MainDataout;
+    assign DataBus = (address[ADDR_W-1:LOCAL_W] == MainMem && !nRead)
                      ? MainDataout                                // 256'b0
                      : 'z;
 
@@ -77,6 +77,15 @@ module top ();
         .Clk(Clk),
         .nReset(nReset)
     );
+
+    // ===========================
+    // Debug -- DELETE ME --
+    // ===========================
+    always @(posedge Clk) begin
+        $display("t=%0t addr=%h nRead=%b nWrite=%b | Bus=%h | Instr=%h | Mem=%h",
+                $time, address, nRead, nWrite,
+                DataBus[31:0], InstrDataout, MainDataout[31:0]);
+    end
 
     always @(DataBus) begin // this block checks to make certain the proper data is in the memory
         if (DataBus[31:0] == 32'hff000000)

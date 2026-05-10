@@ -49,6 +49,7 @@ clk     -----> |   (register)   |
 rst     -----> |                | -----> pc_inc
                +----------------+
  */
+//`include "params.vh"
 module PC (
     input wire clk,
     input wire rst,
@@ -62,7 +63,7 @@ module PC (
     assign pc_inc = pc_curr + {{(ADDR_W-1){1'b0}}, 1'b1}; // Adds 1 to the current PC
 
     // Update the program counter (synchronous)
-    always_ff @(negedge clk) begin  // Update on every falling edge
+    always_ff @(posedge clk) begin  // Update on every falling edge
         if (rst) begin
             pc_curr <= '0;
         end

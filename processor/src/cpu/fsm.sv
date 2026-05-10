@@ -23,6 +23,7 @@
  * Purpose:
  *  Central execution control module.
  */
+//`include "params.vh"
 module Execution (
     input  logic Clk,
     inout  tri [DATA_W-1:0] Dataout,
@@ -110,36 +111,40 @@ module Execution (
          nWrite  <= 1;
          pc_we   <= 0;
          pc_next <= '0;
+         address <= '0;
       end else begin
          case (state)
-               RESET: begin
-                  state <= FETCH;
-                  nRead <= 0;
+            RESET: begin
+               state <= FETCH;
+               address <= 16'h1000; // Point to InstrMem
+               nRead <= 0;
+            end
+            FETCH: begin
+               pc_we <= 0;
+               if (fetch_valid) state <= DECODE;
+            end
+            DECODE: begin
+               nRead <= 1;
+               if (opcode == 8'hFF) state <= HALT;
+               else begin
+                  state <= EXECUTE;
                end
-               FETCH: begin
-                  if (fetch_valid) state <= DECODE;
-               end
-               DECODE: begin
-                  nRead <= 1;
-                  if (opcode == 8'hFF) state <= HALT;
-                  else begin
-                     state <= EXECUTE;
-                  end
-               end
-               EXECUTE: begin
-                  state <= WRITEBACK;
-               end
-               WRITEBACK: begin
-                  // advance PC
-                  pc_next <= pc_inc;
-                  pc_we   <= 1;
-                  state   <= FETCH;
-                  nRead   <= 0;
-               end
-               HALT: begin
-                  nRead  <= 1;
-                  nWrite <= 1;
-               end
+            end
+            EXECUTE: begin
+               state <= WRITEBACK;
+            end
+            WRITEBACK: begin
+               // advance PC
+               pc_next <= pc_inc;
+               pc_we   <= 1;
+               state   <= FETCH;
+               nRead   <= 0;
+               address <= {InstrMem[3:0],pc_inc[LOCAL_W-1:0]};  // Point to next instruction
+            end
+            HALT: begin
+               nRead  <= 1;
+               nWrite <= 1;
+            end
          endcase
       end
    end

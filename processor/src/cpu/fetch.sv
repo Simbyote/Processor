@@ -65,6 +65,7 @@
  rst       -----> |                      |
                   +----------------------+
  */
+//`include "params.vh"
 module Fetch (
     input wire clk,
     input wire rst,
@@ -87,7 +88,7 @@ module Fetch (
 
     // Generate a successful fetch signal
     logic instr_ok;
-    assign instr_ok = hit && (did == MainMem);
+    assign instr_ok = hit && (did == DROM);
 
     // Latch fetched instruction (synchronous)
     always_ff @(posedge clk) begin

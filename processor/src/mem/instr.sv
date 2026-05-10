@@ -37,7 +37,7 @@
  * IntMult::12h::Reg/mem::Reg/mem::Reg/mem
  * IntDiv::13h::Reg/mem::Reg/mem::Reg/mem
  */
-`include "params.vh"
+//`include "params.vh"
 module InstructionMemory(
     input logic Clk,
     inout tri [INSTR_W-1:0]Dataout,    // Changed from logic to tri for bidirectional bus
@@ -45,8 +45,6 @@ module InstructionMemory(
     input logic nRead,
     input logic nReset
 );
-//`include "params.vh"
-
     logic [INSTR_W-1:0]InstructMemory[15]; // this is the physical memory
     logic ItsMe; // the address bus is talking to this module. used to enable tristate buffers
     logic [INSTR_W-1:0] InstToOutput; // this is a temporary data register to be set to go to the output
@@ -55,16 +53,25 @@ module InstructionMemory(
     if (!nReset)
         InstToOutput = 0;
     else begin
-    if(address[ADDR_W-1:LOCAL_W-1] == InstrMem) // talking to Instruction IntstrMemEn
+    // [15:12]
+    if(address[ADDR_W-1:LOCAL_W] == InstrMem) // talking to InstrMemEn
             begin
                 ItsMe = 1;
                 if(~nRead)begin
-                    InstToOutput <= InstructMemory[address[LOCAL_W-1:0]]; // data will reamin on dataout until it is changed.
+                    InstToOutput <= InstructMemory[address[LOCAL_W-1:0]]; // data will remain on dataout until it is changed.
                 end
             end
         else ItsMe = 0; 
         end
     end // from negedge nRead	
+
+    // ===========================
+    // Debug -- DELETE ME --
+    // ===========================
+    always @(negedge Clk) begin
+        $display("INSTR: ItsMe=%b | nRead=%b | InstToOutput=%h | InstructMemory[0]=%h",
+          ItsMe, nRead, InstToOutput, InstructMemory[0]);
+    end
 
     always @(negedge nReset) begin
     //	set in the default instructions
@@ -84,6 +91,6 @@ module InstructionMemory(
     end 
 
     // Assign the instruction memory to the databus
-    assign Dataout = ItsMe ?  {{(INSTR_W-32){1'b0}}, InstToOutput} : {{(INSTR_W-1){1'bz}}};
+    assign Dataout = ItsMe ?  InstToOutput : 'z;
 endmodule
 `default_nettype wire
