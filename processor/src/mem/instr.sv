@@ -50,31 +50,23 @@ module InstructionMemory(
     logic [INSTR_W-1:0] InstToOutput; // this is a temporary data register to be set to go to the output
 
     always_ff @(negedge Clk or negedge nReset) begin
-    if (!nReset)
-        InstToOutput = 0;
-    else begin
-    // [15:12]
-    if(address[ADDR_W-1:LOCAL_W] == InstrMem) // talking to InstrMemEn
-            begin
-                ItsMe = 1;
-                if(~nRead)begin
-                    InstToOutput <= InstructMemory[address[LOCAL_W-1:0]]; // data will remain on dataout until it is changed.
+        if (!nReset) begin
+            InstToOutput <= '0;
+            ItsMe <= 0;
+        end else begin
+            if (address[ADDR_W-1:LOCAL_W] == InstrMem) begin
+                ItsMe <= 1;
+                if (~nRead) begin
+                    InstToOutput <= InstructMemory[address[LOCAL_W-1:0]];
                 end
+            end else begin
+                ItsMe <= 0;
             end
-        else ItsMe = 0; 
         end
-    end // from negedge nRead	
-
-    // ===========================
-    // Debug -- DELETE ME --
-    // ===========================
-    always @(negedge Clk) begin
-        $display("INSTR: ItsMe=%b | nRead=%b | InstToOutput=%h | InstructMemory[0]=%h",
-          ItsMe, nRead, InstToOutput, InstructMemory[0]);
     end
 
     always @(negedge nReset) begin
-    //	set in the default instructions
+        //	set in the default instructions
         InstructMemory[0] = Instruct1;  	
         InstructMemory[1] = Instruct2;  	
         InstructMemory[2] = Instruct3;

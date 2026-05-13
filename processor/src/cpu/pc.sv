@@ -42,7 +42,7 @@
  *
  * Block diagram:
 
-                +----------------+
+               +----------------+
 pc_next -----> |                |
 pc_we   -----> |       PC       | -----> pc_curr
 clk     -----> |   (register)   |
@@ -71,6 +71,13 @@ module PC (
         // If pc_we is low, hold the current value
         else if (pc_we) begin
             pc_curr <= pc_next;
+            // Debug ===============================
+            $display("t=%0t | PC update: %04h -> %04h (inc would be %04h)",
+                     $time, pc_curr, pc_next, pc_inc);
+            if (^pc_next === 1'bx)
+                $display("t=%0t | PC *** X value being written to PC: %04h",
+                         $time, pc_next);
+            // ======================================
         end
     end
 endmodule

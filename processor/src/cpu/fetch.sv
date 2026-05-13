@@ -107,6 +107,14 @@ module Fetch (
         else begin  // On instruction fetch
             valid <= instr_ok;
             if (instr_ok) begin
+                // Debug ===============================
+                if (^drom_data === 1'bx)
+                    $display("t=%0t | FETCH *** X instr at addr=%04h data=%08h",
+                             $time, addr, drom_data);
+                else
+                    $display("t=%0t | FETCH: addr=%04h instr=%08h",
+                             $time, addr, drom_data);
+                // =====================================
                 instr <= drom_data;
             end
         end

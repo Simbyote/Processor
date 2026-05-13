@@ -16,11 +16,11 @@ module MainMemory (
     input  logic nReset
 );
 
-    logic [DATA_W-1:0]MainMemory[14]; // this is the physical memory
+    logic [DATA_W-1:0] MainMemory[14]; // this is the physical memory
     logic ItsMe; // the address bus is talking to this module. used to enable tristate buffers
     logic [DATA_W-1:0] MemToOutput; // this is a temporary data register to be set to go to the output 
 
-    always_ff @(negedge Clk or negedge nReset) begin
+    always_ff @(posedge Clk or negedge nReset) begin
         if (~nReset) begin
             MainMemory[0] = 256'h000e_000c_0008_000d_0008_0010_000f_0009_000B_0008_0006_0007_000c_0005_000c_0008;
             MainMemory[1] = 256'h000a_0005_0007_0009_000c_0004_000e_0002_0007_0006_0007_0008_000c_0007_0004_0009;
@@ -37,20 +37,19 @@ module MainMemory (
             MainMemory[12] = 256'h0;
             MainMemory[13] = 256'h0;
             MemToOutput=0;
-        end
-        // [15:12]
-        else if(address[ADDR_W-1:LOCAL_W] == MainMem) begin // talking to Main Memory
-            if (~nRead) begin
-                ItsMe = 1; // Only Drive Bus on read
-                MemToOutput = MainMemory[address[3:0]]; // data will remain on dataout until it is changed.
+
+            ItsMe = 0;
+        end else begin
+            if (address[ADDR_W-1:LOCAL_W] == MainMem && ~nWrite) begin
+                MainMemory[address[3:0]] <= Dataout;   // NBA now safe on posedge
             end
-            if(~nWrite) begin
-                ItsMe = 0; // only drive bus on read
-                MainMemory[address[3:0]] <= Dataout;
+            ItsMe <= 0;
+            if (address[ADDR_W-1:LOCAL_W] == MainMem && ~nRead) begin
+                ItsMe <= 1;
+                MemToOutput <= MainMemory[address[3:0]];
             end
         end
-        else ItsMe = 0;
-    end 	
+    end
 
     // Assign the main memory to the databus
     assign Dataout = ItsMe ?  MemToOutput : 'z;
