@@ -2,18 +2,32 @@
 `timescale 1ns/1ns
 /* matrix.sv
  * Purpose:
- *  Executes matrix-based arithmetic operations on 4x4 matrices.
+ *  Executes matrix-based arithmetic operations on 4x4 matrices
  *
  * Functions:
- * - Matrix addition, subtraction, multiplication.
- * - Scalar multiplication and transposition.
+ * - Matrix addition, subtraction, multiplication
+ * - Scalar multiplication and transposition
  *
  * Modules:
- * - matrix: Matrix ALU module.
+ * - MatrixALU: Matrix ALU module
  *
  * Notes:
- * - Operations may be multi-cycle.
- * - Execution is fully controlled by the execution FSM.
+ * - Operations may be multi-cycle
+ */
+
+/* MatrixALU
+ * Purpose:
+ *  Executes matrix-based arithmetic operations on 4x4 matrices
+ *
+ * Inputs:
+ * - clk: Clock signal
+ * - address: 16-bit address bus
+ * - nRead: Read signal
+ * - nWrite: Write signal
+ * - nReset: Reset signal
+ *
+ * Outputs:
+ * - Dataout: Data bus
  */
 //`include "params.vh"
 module MatrixALU (

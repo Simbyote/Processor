@@ -3,39 +3,31 @@
 /* instr.sv
  * Purpose:
  *  Holds the instructions that the processor will execute. Is
- *  a read-only memory.
+ *  a read-only memory
+ *
+ * Functions:
+ * - Read instructions from memory
+ *
+ * Modules:
+ * - InstructionMemory: The instruction memory
+ *
+ * Notes:
+ * - Relies on decode to classify instruction memory accesses
  */
 
-//parameter MainMemEn = 0;
-//parameter RegisterEn = 1;
-//parameter InstrMemEn = 2;
-//parameter AluEn = 3;
-//parameter ExecuteEn = 4;
-//parameter IntAlu = 5;
-
-// Alu Register setup // same register sequence for both ALU's 
-//parameter AluStatusIn = 0;
-//parameter AluStatusOut = 1;
-//parameter ALU_Source1 = 2;
-//parameter ALU_Source2 = 3;
-//parameter  ALU_Result = 4;
-//parameter Overflow_err = 5;
-
-/* Moved stop to third instruction for this example
- * instruction: OPcode :: dest :: src1 :: src2 Each section is 8 bits.
- * Stop::FFh::00::00::00
- * MMult1::00h::Reg/mem::Reg/mem::Reg/mem
- * MMult2::01h::Reg/mem::Reg/mem::Reg/mem
- * MMult3::02h::Reg/mem::Reg/mem::Reg/mem
- * Madd::03h::Reg/mem::Reg/mem::Reg/mem
- * Msub::04h::Reg/mem::Reg/mem::Reg/mem
- * Mtranspose::05h::Reg/mem::Reg/mem::Reg/mem
- * MScale::06h::Reg/mem::Reg/mem::Reg/mem
- * MScaleImm::07h:Reg/mem::Reg/mem::Immediate
- * IntAdd::10h::Reg/mem::Reg/mem::Reg/mem
- * IntSub::11h::Reg/mem::Reg/mem::Reg/mem
- * IntMult::12h::Reg/mem::Reg/mem::Reg/mem
- * IntDiv::13h::Reg/mem::Reg/mem::Reg/mem
+/* InstructionMemory
+ * Purpose:
+ *  The instruction memory is a read-only memory that holds the instructions
+ *  that the processor will execute
+ *
+ * Inputs:
+ * - clk: Clock signal
+ * - address: 16-bit address bus
+ * - nRead: Read signal
+ * - nReset: Reset signal
+ *
+ * Outputs:
+ * - Dataout: Data bus
  */
 //`include "params.vh"
 module InstructionMemory(

@@ -78,9 +78,7 @@ module top ();
         .nReset(nReset)
     );
 
-    // ===========================
-    // Debug -- DELETE ME --
-    // ===========================
+    // DEBUG
     always @(posedge Clk) begin
         $display("t=%0t addr=%h nRead=%b nWrite=%b | Bus=%h | Instr=%h | Mem=%h",
                 $time, address, nRead, nWrite,
@@ -181,7 +179,7 @@ module top ();
         $dumpfile("dump.vcd");
         $dumpvars(1);
         Fail = 0;
-        #1000 $finish;
+        #3000 $finish;
     end
 endmodule
 `default_nettype none

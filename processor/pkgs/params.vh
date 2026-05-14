@@ -68,6 +68,6 @@ parameter Instruct8 = 32'h 07_11_03_08; // ScaleImm the result in step 2 by the 
 parameter Instruct9 = 32'h 00_06_04_05; // Multiply the result from step 4 by the result in step 5, store in memory. 4x4 * 4x4
 
 parameter Instruct10 = 32'h 12_0a_01_00; // Multiply the integer value in memory location 0 to location 1. Store it in memory location 0x0A
-parameter Instruct11 = 32'h 11_12_0a_01; // Subtract the integer value in memory location 01 from memory location 0x0A and store it in a register
-parameter Instruct12 = 32'h 13_0c_12_0a; // Divide the result from step 8 by the result in step 9  and store it in location 0x0B
+parameter Instruct11 = 32'h 11_82_0a_01; // Subtract the integer value in memory location 01 from memory location 0x0A and store it in a register
+parameter Instruct12 = 32'h 13_0c_82_0a; // Divide the result from step 8 by the result in step 9  and store it in location 0x0B
 parameter Instruct13 = 32'h FF_00_00_00; // Stop

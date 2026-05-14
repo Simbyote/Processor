@@ -3,18 +3,18 @@
 /* decode.sv
  * Purpose:
  *  Decodes memory addresses and selects the appropriate memory-mapped
- *  signals.
+ *  signals
  *
  * Functions:
- * - Map address ranges to memory, ALUs, and peripherals.
- * - Generate module select signals.
+ * - Map address ranges to memory, ALUs, and peripherals
+ * - Generate module select signals
  *
  * Modules:
- * - decode: Central address decoding module.
+ * - decode: Central address decoding module
  *
  * Notes:
- * - Centralizes all memory map logic.
- * - Prevents address decoding duplication.
+ * - Centralizes all memory map logic
+ * - Prevents address decoding duplication
  */
 
 /* decode
@@ -60,7 +60,6 @@ module Decode (
     output logic hit,
     output logic [2:0] did
 );
-
     // Initialize outputs
     initial begin
         hit = 1'b0;

@@ -3,8 +3,29 @@
 /* mem.sv
  * Purpose:
  *  Implements the main memory module for the processor, providing storage
- *  for instructions and data. Supports read and write operations based on
- *  address decoding
+ *  for instructions and data
+ *
+ * Functions:
+ * - Read and write to main memory
+ *
+ * Modules:
+ * - MainMemory: The main memory module
+ */
+
+/* MainMemory
+ * Purpose:
+ *  The main memory is a read-only memory that holds the instructions
+ *  and data that the processor will execute
+ *
+ * Inputs:
+ * - clk: Clock signal
+ * - address: 16-bit address bus
+ * - nRead: Read signal
+ * - nWrite: Write signal
+ * - nReset: Reset signal
+ *
+ * Outputs:
+ * - Dataout: Data bus
  */
 //`include "params.vh"
 module MainMemory (
@@ -15,10 +36,13 @@ module MainMemory (
     input  logic nWrite,
     input  logic nReset
 );
+    // Internal signals
+    logic [DATA_W-1:0] MainMemory[14];
+    logic [DATA_W-1:0] MemToOutput;
+    logic ItsMe;
 
-    logic [DATA_W-1:0] MainMemory[14]; // this is the physical memory
-    logic ItsMe; // the address bus is talking to this module. used to enable tristate buffers
-    logic [DATA_W-1:0] MemToOutput; // this is a temporary data register to be set to go to the output 
+    // Sets when MainMemory is being read
+    assign ItsMe = (address[ADDR_W-1:LOCAL_W] == MainMem) && ~nRead;
 
     always_ff @(posedge Clk or negedge nReset) begin
         if (~nReset) begin
@@ -37,15 +61,10 @@ module MainMemory (
             MainMemory[12] = 256'h0;
             MainMemory[13] = 256'h0;
             MemToOutput=0;
-
-            ItsMe = 0;
         end else begin
             if (address[ADDR_W-1:LOCAL_W] == MainMem && ~nWrite) begin
-                MainMemory[address[3:0]] <= Dataout;   // NBA now safe on posedge
-            end
-            ItsMe <= 0;
-            if (address[ADDR_W-1:LOCAL_W] == MainMem && ~nRead) begin
-                ItsMe <= 1;
+                MainMemory[address[3:0]] <= Dataout;
+            end else if (address[ADDR_W-1:LOCAL_W] == MainMem && ~nRead) begin
                 MemToOutput <= MainMemory[address[3:0]];
             end
         end

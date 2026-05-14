@@ -3,29 +3,27 @@
 /* fetch.sv
  * Purpose:
  *  Issue instruction fetch requests and present valid instructions
- *  to the execution control logic.
+ *  to the execution control logic
  *
  * Functions:
  * - Drive read accesses to instruction memory using the current PC 
- * (will directly use pc outputs `pc_curr` signal).
+ * (will directly use pc outputs `pc_curr` signal)
  * - Observe decode hit/did signals to qualify instruction validity 
- * (will directly use decode outputs `did` and `hit` signals).
- * - Latch fetched instructions into an instruction register.
- * - Generate `valid` signal for downstream control. 
+ * (will directly use decode outputs `did` and `hit` signals)
+ * - Latch fetched instructions into an instruction register
+ * - Generate `valid` signal for downstream control.
  *
  * Modules:
- * - fetch: Instruction fetch module.
+ * - fetch: Instruction fetch module
  *
  * Notes:
- * - Does not decode instruction contents.
- * - Does not modify PC.
- * - Relies on decode to classify instruction memory accesses.
+ * - Relies on decode to classify instruction memory accesses
  */
 
 /* fetch
  * Purpose:
  *  Fetches instructions from instruction memory using a validated
- *  decode `hit` and `did` signal, operating on rising edge clocks. 
+ *  decode `hit` and `did` signal, operating on rising edge clocks
  * 
  * Inputs:
  * - clk: Clock signal
@@ -49,7 +47,7 @@
  * - `valid` must be derived from decode:
  *      EX: `valid = hit && (did == DROM)`
  * - `instr` should latch on clock only when `valid` is true
- * to prevent garbage instructions when unmapped or idle
+ *    to prevent garbage instructions when unmapped or idle
  * - When `hold` is asserted, fetch does not update and deasserts `rd`
  * - When flush is asserted, set `valid` to 0 for one clock cycle
  *
@@ -90,7 +88,7 @@ module Fetch (
     logic instr_ok;
     assign instr_ok = hit && (did == DROM);
 
-    // Latch fetched instruction (synchronous)
+    // Latch fetched instruction
     always_ff @(posedge clk) begin
         if (rst) begin  // On reset
             instr <= '0;
@@ -107,14 +105,6 @@ module Fetch (
         else begin  // On instruction fetch
             valid <= instr_ok;
             if (instr_ok) begin
-                // Debug ===============================
-                if (^drom_data === 1'bx)
-                    $display("t=%0t | FETCH *** X instr at addr=%04h data=%08h",
-                             $time, addr, drom_data);
-                else
-                    $display("t=%0t | FETCH: addr=%04h instr=%08h",
-                             $time, addr, drom_data);
-                // =====================================
                 instr <= drom_data;
             end
         end
